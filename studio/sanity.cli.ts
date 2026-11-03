@@ -8,5 +8,5 @@ export default defineCliConfig({
   },
   // Hosted at https://carolina-jaime.sanity.studio (`npm run deploy`)
   studioHost: 'carolina-jaime',
-  deployment: {appId: 'wk7a2s64r5a1wjbloek933nq', autoUpdates: true},
+  deployment: {appId: 'wk7a2s64r5a1wjbloek933nq', autoUpdates: false},
 })
