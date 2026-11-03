@@ -5,5 +5,11 @@
   "name": "carolina-jaime",
   "compatibility_date": "2026-10-01",
   "compatibility_flags": ["nodejs_compat"],
+  // The Worker answers on the domain; www redirects to it (src/middleware.ts)
+  "workers_dev": true,
+  "routes": [
+    { "pattern": "carolinajaime.com", "custom_domain": true },
+    { "pattern": "www.carolinajaime.com", "custom_domain": true }
+  ],
   "observability": { "enabled": true }
 }

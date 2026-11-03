@@ -1,0 +1,24 @@
+; carolinajaime.com: zona para importar en Cloudflare (DNS > Records > Import)
+; Basada en el export de GoDaddy del 2026-11-03.
+; Al importar, NO marques "Proxy imported DNS records": todo va en nube gris (DNS only).
+; Sin SOA/NS/HTTPS: Cloudflare los gestiona.
+
+$ORIGIN carolinajaime.com.
+
+; ---------- Correo (Professional Email de GoDaddy) ----------
+@	3600	IN	MX	0	smtp.secureserver.net.
+@	3600	IN	MX	10	mailstore1.secureserver.net.
+@	3600	IN	TXT	"v=spf1 include:secureserver.net -all"
+_dmarc	3600	IN	TXT	"v=DMARC1; p=reject; rua=mailto:dmarc_rua@onsecureserver.net; adkim=r; aspf=r;"
+secureserver1._domainkey	3600	IN	CNAME	s1.dkim.carolinajaime_com.da9.onsecureserver.net. ; cf_tags=cf-proxied:false
+secureserver2._domainkey	3600	IN	CNAME	s2.dkim.carolinajaime_com.da9.onsecureserver.net. ; cf_tags=cf-proxied:false
+email	3600	IN	CNAME	email.secureserver.net. ; cf_tags=cf-proxied:false
+_autodiscover._tcp	3600	IN	SRV	0 0 443 autodiscover.secureserver.net.
+
+; ---------- Web actual en GoDaddy (temporal) ----------
+; Reemplazar al conectar el Worker y borrar entonces los _acme-challenge y _cf-custom-hostname.
+@	600	IN	A	160.153.0.17 ; cf_tags=cf-proxied:false
+www	3600	IN	CNAME	carolinajaime.com. ; cf_tags=cf-proxied:false
+_acme-challenge	3600	IN	CNAME	carolinajaime.com.5b6e1b0351bd6062.dcv.cloudflare.com. ; cf_tags=cf-proxied:false
+_acme-challenge.www	3600	IN	TXT	"vTTAu0qMlkxSg97f8JqQvJgFsCcf3T2VzrC_wqNyJR4"
+_cf-custom-hostname.www	3600	IN	TXT	"4493b0c0-95e8-4536-a634-b5ccb9f3014e"
