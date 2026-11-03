@@ -1,0 +1,18 @@
+---
+import Base from '../../../layouts/Base.astro';
+import PageHero from '../../../components/PageHero.astro';
+import BlogList from '../../../components/BlogList.astro';
+import { getContent } from '../../../lib/sanity';
+import { getPosts } from '../../../lib/blog';
+
+const slug = Astro.params.slug ?? '';
+const [{ site, pages }, { posts, categories }] = await Promise.all([getContent(), getPosts(slug)]);
+const category = categories.find((c) => c.slug === slug);
+if (!category) return Astro.rewrite('/404');
+const page = pages.blog;
+const hero = { ...page, title: category.title };
+---
+<Base site={site} title={`${category.title} · Blog`} description={`Artículos sobre ${category.title.toLowerCase()}.`} image={page.image}>
+  <PageHero site={site} hero={hero} crumb="Blog" />
+  <BlogList site={site} posts={posts} categories={categories} current={slug} />
+</Base>

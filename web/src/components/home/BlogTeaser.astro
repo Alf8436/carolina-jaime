@@ -1,0 +1,54 @@
+---
+import PostCard from '../PostCard.astro';
+import Dots from '../Dots.astro';
+import Eyebrow from '../Eyebrow.astro';
+import type { Home, PostSummary } from '../../lib/content';
+import { rich } from '../../lib/text';
+
+interface Props { blog: Home['blog']; posts: PostSummary[] }
+const { blog, posts } = Astro.props;
+const latest = posts.slice(0, 3);
+---
+{latest.length > 0 && (
+  <section class="blog wrap">
+  <slot />
+    <div class="blog__head">
+      <div>
+        <Eyebrow class="blog__eyebrow" text={blog.eyebrow} />
+        <h2 class="title" data-reveal set:html={rich(blog.title)} />
+        <p class="muted blog__lead" data-reveal>{blog.text}</p>
+      </div>
+      <a class="btn btn--purple blog__all" href="/blog" data-reveal>{blog.cta}</a>
+    </div>
+    <div class="blog__list" data-slider>
+      {latest.map((post) => <div data-reveal data-slide><PostCard post={post} /></div>)}
+    </div>
+    <div class="blog__foot">
+      <Dots count={latest.length} />
+      <a class="btn btn--outline" href="/blog">Ver todos</a>
+    </div>
+  </section>
+)}
+
+<style>
+  .blog { position: relative; z-index: 1; display: flex; flex-direction: column; gap: 48px; padding-top: 100px; padding-bottom: 100px; }
+  .blog__head { display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; }
+  .blog__head :global(.blog__eyebrow) { margin-bottom: 12px; }
+  .blog__lead { margin-top: 12px; font-size: 17px; }
+  .blog__list { display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px; }
+  .blog__foot { display: none; }
+
+  @media (max-width: 700px) {
+    .blog { gap: 24px; padding-top: 64px; padding-bottom: 56px; }
+    .blog__all { display: none; }
+    .blog__lead { margin-top: 8px; font-size: 15px; }
+    .blog__list {
+      display: flex; gap: 14px; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none;
+      margin-inline: calc(var(--gutter-wide) * -1); padding-inline: var(--gutter-wide); scroll-padding-inline: var(--gutter-wide);
+    }
+    .blog__list::-webkit-scrollbar { display: none; }
+    .blog__list > div { flex: 0 0 min(260px, 76vw); scroll-snap-align: start; }
+    .blog__foot { display: flex; align-items: center; justify-content: space-between; }
+    .blog__foot :global(.dots) { justify-content: flex-start; }
+  }
+</style>

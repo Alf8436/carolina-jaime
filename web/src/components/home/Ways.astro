@@ -1,0 +1,74 @@
+---
+import arrow from '../../assets/svg/flecha.svg';
+import leafRose from '../../assets/svg/hoja-rosa-3.svg';
+import Img from '../Img.astro';
+import Eyebrow from '../Eyebrow.astro';
+import type { Home, Site } from '../../lib/content';
+import { rich } from '../../lib/text';
+
+interface Props { ways: Home['ways']; site: Site }
+const { ways, site } = Astro.props;
+---
+<section class="ways wrap--panel">
+  <slot />
+  <div class="ways__panel panel">
+    <img class="ways__leaf" src={leafRose.src} alt="" aria-hidden="true">
+    <div class="ways__intro">
+      <Eyebrow text={ways.eyebrow} />
+      <h2 class="title" data-reveal set:html={rich(ways.title)} />
+      {ways.text && <p class="muted ways__lead" data-reveal>{ways.text}</p>}
+      <a class="btn btn--purple ways__cta ways__cta--desk" href={site.doctoralia} target="_blank" rel="noopener" data-reveal>{site.bookingLabel}</a>
+    </div>
+    <ul class="ways__list">
+      {ways.items.map((item) => (
+        <li data-reveal>
+          <a href="/servicios">
+            <Img class="ways__photo" pic={item.image} width={110} />
+            <div>
+              <h3 class="display">{item.title}</h3>
+              <p class="muted">{item.text}</p>
+            </div>
+            <img class="ways__arrow" src={arrow.src} width="22" height="22" alt="" />
+          </a>
+        </li>
+      ))}
+    </ul>
+    <a class="btn btn--purple ways__cta ways__cta--mobile" href={site.doctoralia} target="_blank" rel="noopener">{site.bookingLabel}</a>
+  </div>
+</section>
+
+<style>
+  .ways { position: relative; z-index: 1; max-width: 1440px; margin-inline: auto; padding-top: 20px; padding-bottom: 60px; }
+  .ways__panel { display: flex; align-items: flex-start; gap: 80px; padding: 90px 100px; background: var(--sage-soft); }
+  .ways__leaf { position: absolute; width: 160px; right: 60px; top: -120px; transform: rotate(-30deg); pointer-events: none; }
+  .ways__intro { position: relative; flex: none; width: 380px; display: flex; flex-direction: column; align-items: flex-start; gap: 22px; }
+  .ways__lead { font-size: 17px; line-height: 1.5; }
+  .ways__list { position: relative; flex: 1; min-width: 0; }
+  .ways__list li + li { border-top: 1px solid var(--sage-line); }
+  .ways__list a { display: flex; align-items: center; gap: 28px; padding-block: 26px; }
+  .ways__list :global(.ways__photo) { flex: none; width: 110px; height: 110px; border-radius: 50%; object-fit: cover; }
+  .ways__list div { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 8px; }
+  .ways__list h3 { font-size: 26px; line-height: 1.2; }
+  .ways__list p { font-size: 15px; line-height: 1.55; }
+  .ways__arrow { flex: none; align-self: flex-start; margin-top: 20px; transition: transform .25s var(--ease); }
+  .ways__list a:hover .ways__arrow { transform: translate(3px, -3px); }
+  .ways__list a:hover h3 { color: var(--purple); }
+  .ways__cta--mobile { display: none; }
+
+  @media (max-width: 1100px) {
+    .ways__panel { flex-direction: column; gap: 32px; padding: 64px 56px; }
+    .ways__intro { width: auto; }
+  }
+  /* Figma mobile: photos 64px, button full width under the list */
+  @media (max-width: 900px) {
+    .ways { padding-bottom: 40px; }
+    .ways__panel { gap: 16px; padding: 40px 24px 32px; }
+    .ways__leaf { width: 100px; right: -10px; top: -70px; }
+    .ways__cta--desk { display: none; }
+    .ways__cta--mobile { display: flex; width: 100%; margin-top: 8px; }
+    .ways__list a { align-items: flex-start; gap: 14px; padding-block: 20px; }
+    .ways__list :global(.ways__photo) { width: 64px; height: 64px; }
+    .ways__list h3 { font-size: 19px; }
+    .ways__arrow { width: 14px; height: 14px; margin-top: 4px; }
+  }
+</style>

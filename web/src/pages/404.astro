@@ -1,0 +1,19 @@
+---
+import Base from '../layouts/Base.astro';
+import { getContent } from '../lib/sanity';
+
+const { site } = await getContent();
+Astro.response.status = 404;
+---
+<Base site={site} title="Página no encontrada">
+  <section class="nf wrap">
+    <p class="eyebrow">Error 404</p>
+    <h1 class="title">Esta página <em>no existe</em></h1>
+    <p class="muted">Puede que el enlace haya cambiado con el nuevo sitio.</p>
+    <a class="btn btn--purple" href="/">Volver al inicio</a>
+  </section>
+</Base>
+
+<style>
+  .nf { display: flex; flex-direction: column; align-items: center; gap: 20px; padding-top: 120px; padding-bottom: 140px; text-align: center; }
+</style>

@@ -1,0 +1,171 @@
+---
+// Detalle del blog – Propuesta C (Figma 51:329 desktop, 64:1329 mobile)
+import Base from '../../layouts/Base.astro';
+import Leaf from '../../components/Leaf.astro';
+import Img from '../../components/Img.astro';
+import PostCard from '../../components/PostCard.astro';
+import fb from '../../assets/svg/share-facebook.svg';
+import wa from '../../assets/svg/share-whatsapp.svg';
+import link from '../../assets/svg/share-link.svg';
+import leafGold from '../../assets/svg/hoja-dorada.svg';
+import { getContent } from '../../lib/sanity';
+import { getPost, renderBody } from '../../lib/blog';
+import { formatDate } from '../../lib/text';
+
+const slug = Astro.params.slug ?? '';
+const [{ site, home }, post] = await Promise.all([getContent(), getPost(slug)]);
+if (!post) return Astro.rewrite('/404');
+
+const url = new URL(`/blog/${post.slug}`, Astro.site).href;
+const share = {
+  facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`,
+  whatsapp: `https://wa.me/?text=${encodeURIComponent(`${post.title} ${url}`)}`
+};
+const author = home.about;
+---
+<Base site={site} title={post.title} description={post.excerpt} image={post.image}>
+  <article>
+    <header class="head wrap">
+      <Leaf kind="rosaBlur12" x={-130} y={704} w={300} rotate={-25} hideMobile />
+      <nav class="head__crumbs" aria-label="Ruta" data-reveal>
+        <a href="/">Home</a><span aria-hidden="true">/</span><a href="/blog">Blog</a><span aria-hidden="true">/</span><span aria-current="page">{post.title}</span>
+      </nav>
+      {post.categories[0] && <a class="head__cat" href={`/blog/categoria/${post.categories[0].slug}`} data-reveal>{post.categories[0].title}</a>}
+      <h1 class="display head__title" data-reveal>{post.title}</h1>
+      <p class="head__meta" data-reveal>
+        <Img class="head__avatar" pic={author.image} width={36} alt="" />
+        <strong>{author.name}</strong><span aria-hidden="true">·</span><time datetime={post.date}>{formatDate(post.date)}</time>
+      </p>
+    </header>
+
+    <div class="cover wrap--panel" data-reveal>
+      <Img class="cover__img" pic={post.image} width={1280} eager />
+      <img class="cover__leaf" src={leafGold.src} alt="" aria-hidden="true">
+    </div>
+
+    <div class="body">
+      <aside class="share" aria-label="Compartir">
+        <p>Compartir</p>
+        <a href={share.facebook} target="_blank" rel="noopener" aria-label="Compartir en Facebook"><img src={fb.src} alt="" /></a>
+        <a href={share.whatsapp} target="_blank" rel="noopener" aria-label="Compartir por WhatsApp"><img src={wa.src} alt="" /></a>
+        <button type="button" aria-label="Copiar enlace" data-copy={url}><img src={link.src} alt="" /></button>
+      </aside>
+      <div class="pt">
+        <div class="pt__content" set:html={renderBody(post.body)} />
+        {post.categories.length > 0 && (
+          <ul class="tags">{post.categories.map((c) => <li><a href={`/blog/categoria/${c.slug}`}>{c.title}</a></li>)}</ul>
+        )}
+        <div class="author">
+          <Img class="author__img" pic={author.image} width={96} alt="" />
+          <div>
+            <p class="eyebrow">Sobre mí</p>
+            <p class="display author__name">{author.name}</p>
+            <p class="muted">{author.role}</p>
+          </div>
+          <a class="btn btn--outline" href="/sobre-mi">Leer más</a>
+        </div>
+      </div>
+    </div>
+  </article>
+
+  {post.related.length > 0 && (
+    <section class="related">
+      <Leaf kind="gris" x={1250} y={-71} w={110} rotate={-15} float hideMobile />
+      <div class="wrap related__inner">
+        <div class="related__head">
+          <h2 class="title">Artículos <em>relacionados</em></h2>
+          <a class="btn btn--purple" href="/blog">Ver todos los artículos</a>
+        </div>
+        <div class="related__grid">{post.related.map((p) => <div data-reveal><PostCard post={p} /></div>)}</div>
+      </div>
+    </section>
+  )}
+</Base>
+
+<script>
+  document.querySelectorAll<HTMLButtonElement>('[data-copy]').forEach((btn) => {
+    btn.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(btn.dataset.copy!);
+        btn.classList.add('is-done');
+        btn.setAttribute('aria-label', 'Enlace copiado');
+        setTimeout(() => { btn.classList.remove('is-done'); btn.setAttribute('aria-label', 'Copiar enlace'); }, 2000);
+      } catch { /* clipboard blocked: nothing to do */ }
+    });
+  });
+</script>
+
+<style>
+  .head { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; gap: 16px; padding-top: 50px; padding-bottom: 40px; text-align: center; }
+  .head__crumbs { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; font-weight: 500; font-size: 13px; color: var(--muted); }
+  .head__crumbs a:hover, .head__crumbs [aria-current] { color: var(--purple); }
+  .head__cat { padding: 6px 14px; border-radius: 999px; background: var(--sage-soft); font-weight: 600; font-size: 12px; color: var(--sage); }
+  .head__title { max-width: 900px; font-size: clamp(38px, 4.4vw, 64px); line-height: 1.1; }
+  .head__meta { display: flex; align-items: center; gap: 10px; font-size: 14px; }
+  .head__meta :global(.head__avatar) { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; }
+  .head__meta time { font-weight: 600; color: var(--rose-dark); }
+
+  .cover { position: relative; z-index: 1; max-width: 1440px; margin-inline: auto; }
+  .cover :global(.cover__img) { width: 100%; height: clamp(230px, 40vw, 580px); object-fit: cover; border-radius: 32px; }
+  .cover__leaf { position: absolute; width: 220px; right: 0; bottom: -60px; pointer-events: none; }
+
+  .body { position: relative; z-index: 1; display: flex; align-items: flex-start; gap: 80px; max-width: 1440px; margin-inline: auto; padding: 80px clamp(20px, 25vw, 360px) 60px clamp(20px, 14vw, 200px); }
+  .share { position: sticky; top: 40px; flex: none; width: 80px; display: flex; flex-direction: column; align-items: center; gap: 12px; }
+  .share p { font-weight: 700; font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); }
+  .share a, .share button { display: grid; place-items: center; width: 44px; height: 44px; border: 1px solid var(--purple); border-radius: 50%; background: none; cursor: pointer; transition: background-color .2s; }
+  .share a:hover, .share button:hover, .share button.is-done { background: var(--rose-tint); }
+
+  .pt { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 26px; }
+  .pt__content { display: flex; flex-direction: column; gap: 26px; }
+  .pt :global(p) { font-size: 18px; line-height: 1.75; }
+  .pt :global(.pt-lead) { font-weight: 500; font-size: 22px; line-height: 1.6; }
+  .pt :global(.pt-h2) { font: 400 clamp(28px, 2.5vw, 36px)/1.2 var(--f-display); }
+  .pt :global(.pt-h3) { font: 700 24px/1.3 var(--f-ui); }
+  .pt__content :global(a) { color: var(--purple); text-decoration: underline; text-underline-offset: 3px; }
+  .pt :global(.pt-list) { display: flex; flex-direction: column; gap: 12px; }
+  .pt :global(.pt-list li) { display: flex; align-items: flex-start; gap: 14px; font-size: 18px; line-height: 1.65; }
+  .pt :global(.pt-list img) { flex: none; margin-top: 5px; }
+  .pt :global(.pt-quote) { position: relative; display: flex; flex-direction: column; gap: 14px; padding: 40px 44px; border-radius: 32px; background: var(--rose-soft); }
+  .pt :global(.pt-quote p) { font: 400 clamp(22px, 2.1vw, 30px)/1.28 var(--f-display); color: var(--purple); }
+  .pt :global(.pt-quote cite) { font-style: normal; font-weight: 600; font-size: 15px; }
+  .pt :global(.pt-figure) { display: flex; flex-direction: column; gap: 12px; }
+  .pt :global(.pt-figure img) { width: 100%; height: auto; max-height: 520px; object-fit: cover; border-radius: 28px; }
+  .pt :global(.pt-figure figcaption) { font-style: italic; font-size: 14px; color: var(--muted); }
+
+  .tags { display: flex; flex-wrap: wrap; gap: 10px; padding-top: 10px; }
+  .tags a { display: block; padding: 8px 16px; border: 1px solid var(--sage); border-radius: 999px; font-weight: 600; font-size: 13px; color: var(--sage); }
+  .tags a:hover { background: var(--sage); color: var(--white); }
+
+  .author { display: flex; align-items: center; gap: 24px; margin-top: 24px; padding: 28px; border-radius: 28px; background: var(--sage-soft); }
+  .author :global(.author__img) { flex: none; width: 96px; height: 96px; border-radius: 50%; object-fit: cover; }
+  .author > div { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+  .author__name { font-size: 22px; line-height: 1.2; }
+  .author .muted { font-size: 14px; }
+
+  .related { position: relative; z-index: 1; background: var(--cream); }
+  .related__inner { display: flex; flex-direction: column; gap: 40px; padding-top: 90px; padding-bottom: 90px; }
+  .related__head { display: flex; align-items: center; justify-content: space-between; gap: 24px; }
+  .related__grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px; }
+
+  @media (max-width: 1100px) {
+    .body { gap: 40px; padding-inline: var(--gutter-wide); }
+  }
+  /* Figma "Detalle del blog – Mobile 375": share buttons go in a row above the text */
+  @media (max-width: 760px) {
+    .head { gap: 12px; padding-top: 28px; padding-bottom: 24px; }
+    .cover :global(.cover__img) { border-radius: 22px; }
+    .cover__leaf { width: 130px; bottom: -36px; }
+    .body { flex-direction: column; gap: 24px; padding-top: 48px; padding-bottom: 40px; }
+    .share { position: static; width: auto; flex-direction: row; }
+    .share p { margin-right: 6px; }
+    .pt, .pt__content { gap: 20px; }
+    .pt :global(p), .pt :global(.pt-list li) { font-size: 16px; }
+    .pt :global(.pt-lead) { font-size: 18px; }
+    .pt :global(.pt-quote) { padding: 28px 24px; border-radius: 24px; }
+    .pt :global(.pt-h3) { font-size: 20px; }
+    .author { flex-direction: column; align-items: flex-start; gap: 14px; padding: 22px; }
+    .related__inner { gap: 24px; padding-top: 56px; padding-bottom: 56px; }
+    .related__head .btn { display: none; }
+    .related__grid { grid-template-columns: 1fr; gap: 32px; }
+  }
+</style>

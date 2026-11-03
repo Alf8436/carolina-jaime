@@ -1,0 +1,15 @@
+---
+// Slider position, Figma "Indicador slider": the active dot stretches into a pill.
+// Driven by the [data-slider] right before it (src/scripts/motion.ts).
+interface Props { count: number }
+const { count } = Astro.props;
+---
+<div class="dots" aria-hidden="true" data-dots>
+  {Array.from({ length: count }, (_, i) => <span class:list={{ 'is-active': i === 0 }} />)}
+</div>
+
+<style>
+  .dots { display: flex; justify-content: center; gap: 6px; }
+  .dots span { width: 8px; height: 8px; border-radius: 999px; background: var(--purple); opacity: .9; transition: width .3s var(--ease); }
+  .dots span.is-active { width: 22px; }
+</style>

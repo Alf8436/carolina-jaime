@@ -1,0 +1,9 @@
+// Astro rendered on Cloudflare Workers (`npm run deploy`): the Worker builds each
+// page with the current Sanity content. The adapter adds the entry point and the
+// static assets binding at build time (dist/server/wrangler.json).
+{
+  "name": "carolina-jaime",
+  "compatibility_date": "2026-10-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "observability": { "enabled": true }
+}

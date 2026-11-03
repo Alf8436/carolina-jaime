@@ -1,0 +1,25 @@
+---
+// Contacto – Propuesta C (Figma 48:393 desktop, 63:930 mobile)
+import Base from '../layouts/Base.astro';
+import Leaf from '../components/Leaf.astro';
+import PageHero from '../components/PageHero.astro';
+import ContactBlock from '../components/ContactBlock.astro';
+import InstagramFeed from '../components/InstagramFeed.astro';
+import { getContent } from '../lib/sanity';
+
+const { site, pages, services } = await getContent();
+const page = pages.contact;
+---
+<Base site={site} title="Contacto" description={`Escríbeme por WhatsApp al ${site.phone}, a ${site.email} o agenda tu cita en Doctoralia.`} image={page.image}>
+  <PageHero site={site} hero={page} crumb="Contacto">
+    <Leaf kind="doradaBlur10" x={1180} y={313} w={380} rotate={8} />
+    <Leaf kind="gris" x={30} y={404} w={110} rotate={-12} float hideMobile />
+  </PageHero>
+
+  <ContactBlock site={site} services={services} title={page.formTitle} tone="white" />
+
+  <InstagramFeed site={site} tone="cream">
+    <Leaf kind="grisBlur8" x={1250} y={-107} w={210} rotate={-15} hideMobile />
+    <Leaf kind="dorada" x={-80} y={470} w={220} float />
+  </InstagramFeed>
+</Base>

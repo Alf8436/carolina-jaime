@@ -1,0 +1,81 @@
+---
+import Dots from '../Dots.astro';
+import type { Home } from '../../lib/content';
+import { rich } from '../../lib/text';
+
+interface Props { steps: Home['steps'] }
+const { steps } = Astro.props;
+// One line-icon per step, in order (Figma "Ícono paso")
+const icons = ['autoconocimiento', 'emociones', 'empatia', 'fortalezas', 'contextos', 'vida-plena'];
+---
+<section class="steps wrap">
+  <slot />
+  <h2 class="title steps__title" data-reveal set:html={rich(steps.title)} />
+  <!-- A 3×2 grid on desktop; a swipeable row of cards on phones (Figma mobile) -->
+  <ol class="steps__grid" data-slider>
+    {steps.items.map((text, i) => (
+      <li class="steps__item" data-reveal data-slide>
+        <div class="steps__badge">
+          <span class="steps__icon"><img src={`/icons/pasos/${icons[i % icons.length]}.svg`} width="45" height="45" alt="" /></span>
+          <span class="steps__num">{String(i + 1).padStart(2, '0')}</span>
+        </div>
+        <p set:html={rich(text)} />
+      </li>
+    ))}
+  </ol>
+  <Dots count={steps.items.length} />
+</section>
+
+<style>
+  .steps { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; gap: 64px; padding-top: 100px; padding-bottom: 110px; }
+  .steps__title { text-align: center; }
+  .steps__grid { width: 100%; display: grid; grid-template-columns: repeat(3, 1fr); row-gap: 56px; }
+  .steps__item { display: flex; flex-direction: column; align-items: center; gap: 18px; padding-inline: 40px; text-align: center; }
+  .steps__item:not(:nth-child(3n + 1)) { border-left: 1px solid var(--sage-line); }
+  .steps__badge { position: relative; width: 92px; height: 88px; }
+  .steps__icon {
+    position: absolute; left: 6px; top: 4px; display: grid; place-items: center;
+    width: 80px; height: 80px; border-radius: 50%; background: var(--rose);
+  }
+  .steps__icon img { width: 44.8px; height: 44.8px; }
+  .steps__num {
+    position: absolute; left: 62px; top: 0; display: grid; place-items: center;
+    width: 32px; height: 32px; border-radius: 50%; border: 3px solid var(--white);
+    background: var(--purple); color: var(--white); font-size: 11px; font-weight: 700; line-height: 1;
+  }
+  .steps__item p { font-size: 16px; line-height: 1.55; }
+  .steps__item p :global(strong) { font-weight: 700; }
+  .steps__item p :global(em) { font-style: normal; color: var(--purple); font-weight: 700; }
+  .steps :global(.dots) { display: none; }
+
+  @media (max-width: 1000px) {
+    .steps__item { padding-inline: 24px; }
+  }
+  @media (max-width: 700px) {
+    .steps { gap: 32px; padding-top: 72px; padding-bottom: 64px; }
+    .steps__grid {
+      width: auto; align-self: stretch;
+      display: flex; gap: 12px; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none;
+      margin-inline: calc(var(--gutter-wide) * -1); padding-inline: var(--gutter-wide); scroll-padding-inline: var(--gutter-wide);
+    }
+    .steps__grid::-webkit-scrollbar { display: none; }
+    .steps__item {
+      flex: 0 0 min(220px, 64vw); align-items: flex-start; text-align: left; gap: 16px;
+      padding: 22px; border-radius: 24px; background: var(--rose-soft); scroll-snap-align: start;
+      transition: background-color .35s, color .35s;
+    }
+    .steps__item:not(:nth-child(3n + 1)) { border-left: 0; }
+    .steps__item p { font-size: 15px; }
+    .steps__badge { width: auto; height: auto; display: flex; align-items: center; gap: 12px; }
+    .steps__icon { position: static; width: 56px; height: 56px; transition: background-color .35s; }
+    .steps__icon img { width: 31.36px; height: 31.36px; }
+    .steps__num {
+      position: static; width: auto; height: auto; border: 0; border-radius: 0; background: none;
+      font-family: var(--f-display); font-size: 22px; font-weight: 400; color: var(--purple); transition: color .35s;
+    }
+    .steps__item.is-active { background: var(--purple); color: var(--white); }
+    .steps__item.is-active .steps__icon { background: rgb(255 255 255 / .2); }
+    .steps__item.is-active .steps__num { color: var(--gold); }
+    .steps :global(.dots) { display: flex; }
+  }
+</style>

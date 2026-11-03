@@ -1,0 +1,49 @@
+---
+// Home – Propuesta C (Figma 50:282 desktop, 62:375 mobile)
+import Base from '../layouts/Base.astro';
+import Leaf from '../components/Leaf.astro';
+import Hero from '../components/home/Hero.astro';
+import AboutTeaser from '../components/home/AboutTeaser.astro';
+import Ways from '../components/home/Ways.astro';
+import Steps from '../components/home/Steps.astro';
+import BlogTeaser from '../components/home/BlogTeaser.astro';
+import Testimonials from '../components/home/Testimonials.astro';
+import InstagramFeed from '../components/InstagramFeed.astro';
+import ContactBlock from '../components/ContactBlock.astro';
+import { getContent } from '../lib/sanity';
+
+const { site, home, services, posts, testimonials } = await getContent();
+---
+<Base site={site}>
+  <Hero hero={home.hero} services={services} site={site} />
+
+  <!-- Leaf positions: the Figma "Hojas" layers, measured from the top of each section -->
+  <AboutTeaser about={home.about}>
+    <Leaf kind="gris" x={30} y={-40} w={110} rotate={-12} float hideMobile />
+  </AboutTeaser>
+
+  <Ways ways={home.ways} site={site}>
+    <Leaf kind="doradaBlur10" x={1150} y={-145} w={404} rotate={8} />
+    <Leaf kind="rosaBlur10" x={-254} y={558} w={317} rotate={20} />
+  </Ways>
+
+  <Steps steps={home.steps}>
+    <Leaf kind="rosaBlur10b" x={-259} y={487} w={339} rotate={15} hideMobile />
+    <Leaf kind="grisBlur6" x={1300} y={647} w={108} rotate={-12} hideMobile />
+  </Steps>
+
+  <Testimonials section={home.testimonials} testimonials={testimonials}>
+    <Leaf kind="rosaBlur12" x={1298} y={257} w={366} rotate={-25} hideMobile />
+  </Testimonials>
+
+  <BlogTeaser blog={home.blog} posts={posts}>
+    <Leaf kind="grisBlur8" x={1220} y={611} w={227} rotate={-15} hideMobile />
+    <Leaf kind="dorada" x={-110} y={707} w={360} float />
+  </BlogTeaser>
+
+  <InstagramFeed site={site}>
+    <Leaf kind="gris" x={1292} y={610} w={111} rotate={-20} float hideMobile />
+  </InstagramFeed>
+
+  <ContactBlock site={site} services={services} eyebrow={home.contact.eyebrow} title={home.contact.title} text={home.contact.text} />
+</Base>

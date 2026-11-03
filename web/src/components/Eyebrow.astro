@@ -1,0 +1,10 @@
+---
+// Figma "Etiqueta de sección" / "Título de página": a small gold leaf and the label in caps
+import leafGold from '../assets/svg/hoja-dorada.svg';
+
+interface Props { text: string; class?: string }
+const { text, class: className } = Astro.props;
+---
+<p class:list={['eyebrow', className]} data-reveal>
+  <img src={leafGold.src} width="24" height="18" alt="" aria-hidden="true" />{text}
+</p>

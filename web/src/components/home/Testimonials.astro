@@ -1,0 +1,214 @@
+---
+// Home "Testimonios" (Figma 152:3430 desktop, 152:3555 mobile): a carousel of
+// "Tarjeta testimonio" cards, 3 per page on desktop and 1 on phones, with dots,
+// a page counter and arrows. Hidden while no testimonial is published.
+import Eyebrow from '../Eyebrow.astro';
+import type { Home, Testimonial, TestimonialColor } from '../../lib/content';
+import { sized } from '../../lib/sanity';
+import { rich } from '../../lib/text';
+
+interface Props { section: Home['testimonials']; testimonials: Testimonial[] }
+const { section, testimonials } = Astro.props;
+
+// "Automático" follows the order of the cards in the Figma carousel
+const SEQUENCE: Exclude<TestimonialColor, 'auto'>[] = ['purple', 'white', 'rose', 'white', 'gold', 'purple', 'white', 'rose', 'gold', 'white'];
+const colorOf = (t: Testimonial, i: number) => (t.color && t.color !== 'auto' ? t.color : SEQUENCE[i % SEQUENCE.length]);
+const initials = (name: string) =>
+  name.trim().split(/\s+/).slice(0, 2).map((w) => w[0]?.toUpperCase() ?? '').join('');
+---
+{testimonials.length > 0 && (
+  <section class="testi wrap" aria-roledescription="carrusel" aria-label="Testimonios">
+    <slot />
+    <div class="testi__head">
+      <Eyebrow text={section.eyebrow} />
+      <h2 class="title testi__title" data-reveal set:html={rich(section.title)} />
+    </div>
+
+    <div class="testi__carousel" data-testi>
+      <ul class="testi__rail" data-testi-rail>
+        {testimonials.map((t, i) => (
+          <li class={`testi__card testi__card--${colorOf(t, i)}`} aria-roledescription="testimonio">
+            <span class="testi__mark" aria-hidden="true">“</span>
+            <blockquote class="testi__quote">{t.quote}</blockquote>
+            <span class="testi__rule" aria-hidden="true" />
+            <div class="testi__author">
+              <span class="testi__avatar" aria-hidden="true">
+                {t.photo ? <img src={sized(t.photo.src, 96)} width="48" height="48" alt="" loading="lazy" /> : initials(t.name)}
+              </span>
+              <span class="testi__who">
+                <strong>{t.name}</strong>
+                {t.relation && <span>{t.relation}</span>}
+              </span>
+            </div>
+          </li>
+        ))}
+      </ul>
+
+      <div class="testi__nav">
+        <div class="testi__indicator">
+          <div class="testi__dots" data-testi-dots />
+          <p class="testi__count" aria-live="polite" data-testi-count />
+        </div>
+        <div class="testi__arrows">
+          <button class="testi__arrow" type="button" aria-label="Testimonios anteriores" data-testi-prev>
+            <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M12.5 5L7.5 10L12.5 15" /></svg>
+          </button>
+          <button class="testi__arrow" type="button" aria-label="Más testimonios" data-testi-next>
+            <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M7.5 5L12.5 10L7.5 15" /></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+)}
+
+<script>
+  // Pages follow how many cards fit (3 on desktop, 1 on phones); the rail scrolls
+  // natively, so swiping works too, and the dots, counter and arrows follow it.
+  document.querySelectorAll<HTMLElement>('[data-testi]').forEach((root) => {
+    const rail = root.querySelector<HTMLElement>('[data-testi-rail]')!;
+    const dotsEl = root.querySelector<HTMLElement>('[data-testi-dots]')!;
+    const count = root.querySelector<HTMLElement>('[data-testi-count]')!;
+    const prev = root.querySelector<HTMLButtonElement>('[data-testi-prev]')!;
+    const next = root.querySelector<HTMLButtonElement>('[data-testi-next]')!;
+    const cards = Array.from(rail.children) as HTMLElement[];
+    let perPage = 1;
+    let pages = 1;
+
+    const step = () => (cards[1] ? cards[1].offsetLeft - cards[0].offsetLeft : rail.clientWidth);
+    // At the end of the rail the last page counts as reached, even when it holds fewer cards
+    const atEnd = () => rail.scrollLeft >= rail.scrollWidth - rail.clientWidth - 2;
+    const current = () => (atEnd() ? pages - 1 : Math.min(pages - 1, Math.round(rail.scrollLeft / (step() * perPage))));
+    const pad = (n: number) => String(n).padStart(2, '0');
+
+    function render() {
+      const page = current();
+      Array.from(dotsEl.children).forEach((d, i) => {
+        d.classList.toggle('is-active', i === page);
+        d.setAttribute('aria-current', i === page ? 'true' : 'false');
+      });
+      count.textContent = `${pad(page + 1)} / ${pad(pages)}`;
+      prev.disabled = page === 0;
+      next.disabled = page >= pages - 1;
+    }
+
+    function goTo(page: number) {
+      const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+      rail.scrollTo({ left: page * perPage * step(), behavior: reduce ? 'auto' : 'smooth' });
+    }
+
+    function layout() {
+      // Cards that fit whole: the first one, then one more per step
+      perPage = Math.max(1, Math.floor((rail.clientWidth - cards[0].offsetWidth) / step() + 1.01));
+      pages = Math.max(1, Math.ceil(cards.length / perPage));
+      dotsEl.replaceChildren(
+        ...Array.from({ length: pages }, (_, i) => {
+          const b = document.createElement('button');
+          b.type = 'button';
+          b.setAttribute('aria-label', `Ir a la página ${i + 1} de testimonios`);
+          b.addEventListener('click', () => goTo(i));
+          return b;
+        })
+      );
+      root.classList.toggle('is-single', pages === 1);
+      render();
+    }
+
+    prev.addEventListener('click', () => goTo(current() - 1));
+    next.addEventListener('click', () => goTo(current() + 1));
+    let frame = 0;
+    rail.addEventListener('scroll', () => {
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(render);
+    }, { passive: true });
+    new ResizeObserver(layout).observe(rail);
+    layout();
+  });
+</script>
+
+<style>
+  .testi { position: relative; z-index: 1; display: flex; flex-direction: column; gap: 44px; padding-top: 80px; padding-bottom: 80px; }
+  .testi__head { display: flex; flex-direction: column; gap: 14px; }
+  .testi__head :global(.eyebrow) { margin: 0; }
+  .testi__title { margin: 0; }
+
+  .testi__carousel { display: flex; flex-direction: column; gap: 36px; min-width: 0; }
+  /* The rail scrolls sideways; its padding leaves room for the card shadows */
+  .testi__rail {
+    display: flex; gap: 25px; margin: 0; padding: 12px 0 24px; list-style: none;
+    overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; overscroll-behavior-x: contain;
+    margin-block: -12px -24px;
+  }
+  .testi__rail::-webkit-scrollbar { display: none; }
+
+  .testi__card {
+    --card-text: var(--white); --card-sub: rgb(255 255 255 / .8); --card-mark: var(--gold); --card-rule: var(--rose-dark); --card-avatar: var(--gold);
+    flex: 0 0 calc((100% - 50px) / 3); scroll-snap-align: start;
+    display: flex; flex-direction: column; gap: 18px; padding: 32px; border-radius: 24px;
+    background: var(--purple); color: var(--card-text);
+    filter: drop-shadow(0 12px 16px rgb(89 64 102 / .07));
+  }
+  .testi__card--white { --card-text: var(--text); --card-sub: var(--muted); --card-mark: var(--gold); --card-rule: #cec3d2; --card-avatar: var(--rose); background: var(--white); border: 1px solid #cec3d2; }
+  .testi__card--white .testi__quote { color: var(--muted); }
+  .testi__card--rose { --card-text: var(--text); --card-sub: var(--text); --card-mark: var(--purple); --card-avatar: var(--white); background: var(--rose); }
+  .testi__card--gold { --card-text: var(--text); --card-sub: var(--text); --card-mark: var(--purple); --card-avatar: var(--white); background: var(--gold); }
+
+  .testi__mark { height: 30px; font: 400 72px/1 var(--f-display); color: var(--card-mark); }
+  .testi__quote { flex: 1; margin: 0; font-size: 16px; line-height: 1.65; }
+  .testi__rule { height: 1px; background: var(--card-rule); }
+  .testi__author { display: flex; align-items: center; gap: 14px; }
+  .testi__avatar {
+    display: grid; place-items: center; flex: none; width: 48px; height: 48px; overflow: hidden; border-radius: 50%;
+    background: var(--card-avatar); color: var(--purple); font: 400 18px/1 var(--f-display);
+  }
+  .testi__avatar img { width: 100%; height: 100%; object-fit: cover; }
+  .testi__who { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+  .testi__who strong { font-size: 15px; font-weight: 600; }
+  .testi__who span { font-size: 13px; color: var(--card-sub); }
+
+  .testi__nav { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+  .testi__indicator { display: flex; align-items: center; gap: 18px; }
+  .testi__dots { display: flex; align-items: center; gap: 8px; }
+  .testi__dots :global(button) {
+    width: 10px; height: 10px; padding: 0; border: 0; border-radius: 99px; background: var(--rose); cursor: pointer;
+    transition: width .3s var(--ease), background-color .3s;
+  }
+  .testi__dots :global(button.is-active) { width: 28px; background: var(--purple); cursor: default; }
+  .testi__count { margin: 0; font-size: 14px; font-weight: 600; letter-spacing: .04em; color: var(--purple); font-variant-numeric: tabular-nums; }
+  .testi__arrows { display: flex; gap: 12px; }
+  .testi__arrow {
+    display: grid; place-items: center; width: 52px; height: 52px; padding: 0;
+    border: 1.5px solid var(--purple); border-radius: 50%; background: var(--purple); color: var(--white); cursor: pointer;
+    transition: background-color .2s, color .2s;
+  }
+  .testi__arrow:hover:not(:disabled) { background: #6e4f7c; border-color: #6e4f7c; }
+  .testi__arrow:disabled { background: var(--white); color: rgb(129 96 143 / .35); cursor: default; }
+  .testi__arrow svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .is-single .testi__nav { display: none; }
+
+  @media (max-width: 1000px) {
+    .testi__card { flex-basis: calc((100% - 25px) / 2); }
+  }
+  /* Phones (Figma 375): one card with the next one peeking, smaller type and controls */
+  @media (max-width: 700px) {
+    .testi { gap: 24px; padding-top: 48px; padding-bottom: 40px; }
+    .testi__head { gap: 10px; }
+    .testi__title { font-size: 30px; }
+    .testi__title :global(em) { display: block; }
+    .testi__carousel { gap: 20px; }
+    .testi__rail { gap: 12px; padding-block: 6px 20px; margin-block: -6px -20px; }
+    .testi__card { flex-basis: 88%; gap: 14px; padding: 24px; border-radius: 20px; }
+    .testi__mark { height: 26px; font-size: 56px; }
+    .testi__quote { font-size: 15px; }
+    .testi__avatar { width: 44px; height: 44px; font-size: 16px; }
+    .testi__who strong { font-size: 14px; }
+    .testi__indicator { gap: 12px; }
+    .testi__dots { gap: 5px; flex-wrap: wrap; }
+    .testi__dots :global(button) { width: 6px; height: 6px; }
+    .testi__dots :global(button.is-active) { width: 18px; }
+    .testi__count { font-size: 12px; }
+    .testi__arrows { gap: 10px; }
+    .testi__arrow { width: 40px; height: 40px; }
+    .testi__arrow svg { width: 16px; height: 16px; }
+  }
+</style>

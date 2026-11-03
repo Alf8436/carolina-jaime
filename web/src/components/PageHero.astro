@@ -1,0 +1,86 @@
+---
+// Inner page hero (Sobre mí, Servicios, Talleres, Blog, Contacto): breadcrumb, eyebrow,
+// title, optional line and the booking button, photo in an organic frame with three leaves.
+import leafRose from '../assets/svg/hoja-rosa.svg';
+import leafGold from '../assets/svg/hoja-dorada.svg';
+import leafGrey from '../assets/svg/hoja-gris.svg';
+import Img from './Img.astro';
+import Eyebrow from './Eyebrow.astro';
+import type { PageHero, Site } from '../lib/content';
+import { rich } from '../lib/text';
+
+interface Props {
+  site: Site;
+  hero: PageHero;
+  crumb: string;             // the page name in the breadcrumb
+  shape?: 'drop' | 'arch';   // Figma: rounded with one tighter corner, or an arch
+}
+const { site, hero, crumb, shape = 'drop' } = Astro.props;
+---
+<section class="phero wrap--panel">
+  <div class="phero__panel panel">
+    <div class="phero__text">
+      <nav class="phero__crumbs" aria-label="Ruta" data-reveal>
+        <a href="/">Home</a><span aria-hidden="true">/</span><span aria-current="page">{crumb}</span>
+      </nav>
+      <Eyebrow text={hero.eyebrow} />
+      <h1 class="phero__title" data-reveal set:html={rich(hero.title)} />
+      {hero.text && <p class="phero__lead" data-reveal set:html={rich(hero.text)} />}
+      <a class="btn btn--purple" href={site.doctoralia} target="_blank" rel="noopener" data-reveal>{site.bookingLabel}</a>
+    </div>
+    <div class="phero__visual" data-reveal>
+      <img class="phero__leaf phero__leaf--rose" src={leafRose.src} alt="" aria-hidden="true">
+      <Img class:list={['phero__photo', `phero__photo--${shape}`]} pic={hero.image} width={420} eager />
+      <img class="phero__leaf phero__leaf--gold" src={leafGold.src} alt="" aria-hidden="true">
+      <img class="phero__leaf phero__leaf--grey" src={leafGrey.src} alt="" aria-hidden="true">
+    </div>
+  </div>
+  <slot />
+</section>
+
+<style>
+  .phero { position: relative; z-index: 1; max-width: 1440px; margin-inline: auto; padding-top: 10px; padding-bottom: 40px; }
+  .phero__panel { display: flex; align-items: center; gap: 60px; padding: 44px 100px 44px 110px; background: var(--rose-soft); }
+  .phero__text { flex: 1; min-width: 0; display: flex; flex-direction: column; align-items: flex-start; gap: 14px; }
+  .phero__crumbs { display: flex; gap: 10px; margin-bottom: 18px; font-weight: 500; font-size: 14px; color: var(--muted); }
+  .phero__crumbs a:hover { color: var(--purple); }
+  .phero__crumbs [aria-current] { color: var(--purple); }
+  /* Light Montserrat; the `*…*` part drops to its own line in purple Abril Fatface */
+  .phero__title { font: 300 clamp(40px, 3.8vw, 54px)/1.12 var(--f-ui); color: var(--text); text-wrap: balance; }
+  .phero__title :global(em), .phero__title :global(strong) { font: 400 1em/1.12 var(--f-display); font-style: normal; }
+  .phero__title :global(em) { display: block; color: var(--purple); }
+  .phero__lead { font-size: 18px; line-height: 1.6; color: var(--muted); }
+  .phero__lead :global(strong) { font-weight: 600; }
+  .phero__text .btn { margin-top: 10px; }
+
+  /* Figma, banners internos reducidos: photo 300 in a 360 × 320 visual */
+  .phero__visual { position: relative; flex: none; width: 360px; height: 320px; }
+  .phero__visual :global(.phero__photo) { position: absolute; left: 30px; top: 10px; width: 300px; height: 300px; object-fit: cover; }
+  .phero__visual :global(.phero__photo--drop) { border-radius: 150px 150px 150px 36px; }
+  .phero__visual :global(.phero__photo--arch) { border-radius: 150px 150px 24px 24px; }
+  .phero__leaf { position: absolute; pointer-events: none; }
+  .phero__leaf--rose { width: 175px; left: -95px; top: 15px; transform: rotate(60deg); }
+  .phero__leaf--gold { width: 170px; left: 200px; top: 232px; }
+  .phero__leaf--grey { width: 72px; left: -16px; top: 232px; transform: rotate(-10deg); }
+
+  @media (max-width: 1100px) {
+    .phero__panel { gap: 40px; padding: 44px 56px; }
+  }
+  /* Figma inner pages "Mobile 375": photo on top, text under it */
+  @media (max-width: 760px) {
+    .phero { padding-top: 8px; padding-bottom: 24px; }
+    .phero__panel { flex-direction: column-reverse; align-items: stretch; gap: 24px; padding: 28px 20px 32px; }
+    .phero__visual { width: min(280px, 100%); height: 270px; margin-inline: auto; }
+    .phero__visual :global(.phero__photo) { left: 10px; top: 0; width: calc(100% - 20px); height: 260px; }
+    .phero__visual :global(.phero__photo--drop) { border-radius: 130px 130px 130px 32px; }
+    .phero__visual :global(.phero__photo--arch) { border-radius: 130px 130px 22px 22px; }
+    .phero__leaf--rose { width: 150px; left: -110px; top: 30px; }
+    .phero__leaf--gold { width: 150px; left: auto; right: -40px; top: 200px; }
+    .phero__leaf--grey { width: 60px; left: -10px; top: 190px; }
+    .phero__text { gap: 12px; }
+    .phero__crumbs { margin-bottom: 12px; font-size: 13px; }
+    .phero__title { font-size: 36px; line-height: 1.1; }
+    .phero__lead { font-size: 15px; line-height: 1.5; }
+    .phero__text .btn { width: 100%; margin-top: 6px; }
+  }
+</style>

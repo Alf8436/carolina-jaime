@@ -1,0 +1,75 @@
+---
+// Talleres – Propuesta C (Figma 47:148 desktop, 63:736 mobile)
+import Base from '../layouts/Base.astro';
+import Leaf from '../components/Leaf.astro';
+import PageHero from '../components/PageHero.astro';
+import ConsultaCta from '../components/ConsultaCta.astro';
+import Img from '../components/Img.astro';
+import Dots from '../components/Dots.astro';
+import whatsapp from '../assets/svg/whatsapp.svg';
+import { getContent } from '../lib/sanity';
+import { waLink } from '../lib/text';
+
+const { site, pages, workshops } = await getContent();
+const page = pages.workshops;
+---
+<Base site={site} title="Talleres" description="Charlas y talleres para padres de familia, instituciones educativas, empresas y familias." image={page.image}>
+  <PageHero site={site} hero={page} crumb="Talleres">
+    <Leaf kind="doradaBlur10" x={1180} y={313} w={380} rotate={8} />
+    <Leaf kind="gris" x={30} y={404} w={110} rotate={-12} float hideMobile />
+  </PageHero>
+
+  <section class="ws wrap">
+    <Leaf kind="rosaBlur12" x={-140} y={1254} w={300} rotate={-25} hideMobile />
+    <ul class="ws__grid" data-slider>
+      {workshops.map((w) => (
+        <li class="ws__card" data-reveal data-slide>
+          <Img class="ws__img" pic={w.image} width={600} />
+          <div class="ws__body">
+            <h2 class="display">{w.title}</h2>
+            <p class="muted">{w.text}</p>
+            <a class="ws__wa" href={waLink(site.whatsapp, w.message)} target="_blank" rel="noopener">
+              <img src={whatsapp.src} width="20" height="20" alt="" />Whatsapp
+            </a>
+          </div>
+        </li>
+      ))}
+    </ul>
+    <Dots count={workshops.length} />
+  </section>
+
+  <ConsultaCta site={site} />
+</Base>
+
+<style>
+  .ws { position: relative; z-index: 1; padding-top: 80px; padding-bottom: 60px; }
+  .ws__grid { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: start; }
+  .ws__card { overflow: hidden; border-radius: 32px; background: var(--white); box-shadow: var(--shadow-form); }
+  .ws__card :global(.ws__img) { width: 100%; height: 340px; object-fit: cover; }
+  .ws__body { display: flex; flex-direction: column; align-items: flex-start; gap: 16px; padding: 34px 40px 40px; }
+  .ws__body h2 { font-size: 28px; line-height: 1.2; }
+  .ws__body p { font-size: 16px; line-height: 1.6; }
+  .ws__wa { display: inline-flex; align-items: center; gap: 10px; padding-top: 8px; font-weight: 600; font-size: 15px; color: var(--sage); }
+  .ws__wa:hover { color: var(--purple); }
+
+  .ws :global(.dots) { display: none; }
+  @media (max-width: 900px) {
+    .ws { padding-top: 48px; padding-bottom: 24px; }
+    .ws__grid { grid-template-columns: 1fr; gap: 20px; }
+  }
+  /* Figma "Talleres – Mobile 375": a swipeable row of cards */
+  @media (max-width: 700px) {
+    .ws__grid {
+      display: flex; gap: 14px; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; align-items: stretch;
+      margin-inline: calc(var(--gutter-wide) * -1); padding: 0 var(--gutter-wide) 30px; scroll-padding-inline: var(--gutter-wide);
+    }
+    .ws__grid::-webkit-scrollbar { display: none; }
+    .ws__card { flex: 0 0 min(290px, 80vw); scroll-snap-align: start; }
+    .ws :global(.dots) { display: flex; justify-content: flex-start; }
+    .ws__card { border-radius: 24px; }
+    .ws__card :global(.ws__img) { height: 220px; }
+    .ws__body { padding: 22px 22px 26px; gap: 12px; }
+    .ws__body h2 { font-size: 22px; }
+    .ws__body p { font-size: 15px; }
+  }
+</style>

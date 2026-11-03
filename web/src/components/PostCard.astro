@@ -1,0 +1,30 @@
+---
+import Img from './Img.astro';
+import type { PostSummary } from '../lib/content';
+import { formatDate } from '../lib/text';
+
+interface Props { post: PostSummary; headingLevel?: 'h2' | 'h3' }
+const { post, headingLevel: H = 'h3' } = Astro.props;
+const href = `/blog/${post.slug}`;
+---
+<article class="card">
+  <a class="card__img" href={href} tabindex="-1" aria-hidden="true"><Img pic={post.image} width={400} /></a>
+  <time class="card__date" datetime={post.date}>{formatDate(post.date)}</time>
+  <H class="card__title"><a href={href}>{post.title}</a></H>
+  <p class="card__excerpt">{post.excerpt}</p>
+  <a class="link-more" href={href}>Leer más <span aria-hidden="true">→</span><span class="sr-only">: {post.title}</span></a>
+</article>
+
+<style>
+  .card { display: flex; flex-direction: column; align-items: flex-start; gap: 14px; min-width: 0; }
+  .card__img { display: block; width: 100%; overflow: hidden; border-radius: 24px; aspect-ratio: 400 / 250; }
+  .card__img :global(img) { width: 100%; height: 100%; object-fit: cover; transition: transform .6s var(--ease); }
+  .card:hover .card__img :global(img) { transform: scale(1.04); }
+  .card__date { font-weight: 600; font-size: 13px; color: var(--rose-dark); }
+  .card__title { font: 700 20px/1.3 var(--f-ui); }
+  .card__title a:hover { color: var(--purple); }
+  .card__excerpt {
+    font-size: 14px; line-height: 1.55; color: var(--muted);
+    display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden;
+  }
+</style>

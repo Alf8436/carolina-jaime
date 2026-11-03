@@ -1,0 +1,12 @@
+<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="339.253" height="420.606" viewBox="0 0 339.253 420.606" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="Hoja rosa &#194;&#183; flotante &#194;&#183; media &#194;&#183; desenfocada 10" opacity="0.55" filter="url(#filter0_f_0_38)">
+<path id="Vector" d="M329.253 81.5909C235.64 70.3012 137.3 107.551 75.2109 178.138C16.2321 245.118 -44.1937 389.667 94.7901 353.903C193.307 328.124 290.996 166.847 329.253 81.5909Z" fill="#E3C7BC" fill-opacity="0.5"/>
+</g>
+<defs>
+<filter id="filter0_f_0_38" x="0" y="-10" width="339.731" height="440.606" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+<feFlood flood-opacity="0" result="BackgroundImageFix"/>
+<feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/>
+<feGaussianBlur stdDeviation="5" result="effect1_foregroundBlur_0_38"/>
+</filter>
+</defs>
+</svg>

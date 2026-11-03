@@ -1,0 +1,50 @@
+---
+import logo from '../assets/svg/logo-blanco.svg';
+import leaf from '../assets/svg/hoja-rosa-footer.svg';
+import type { Site } from '../lib/content';
+import { NAV } from '../lib/nav';
+
+interface Props { site: Site }
+const { site } = Astro.props;
+const year = new Date().getFullYear();
+---
+<footer class="footer">
+  <img class="footer__leaf" src={leaf.src} alt="" aria-hidden="true">
+  <div class="wrap footer__inner">
+    <div class="footer__row">
+      <a href="/" aria-label="Carolina Jaime, inicio"><img src={logo.src} width="180" height="68" alt="Carolina Jaime · Psicoterapeuta"></a>
+      <nav class="footer__nav" aria-label="Pie de página">
+        {NAV.slice(1).map((l) => <a href={l.href}>{l.label}</a>)}
+      </nav>
+      <p class="footer__social">
+        <a href={site.facebook} target="_blank" rel="noopener">Facebook</a>
+        <span aria-hidden="true">·</span>
+        <a href={site.instagram} target="_blank" rel="noopener">Instagram</a>
+        <span aria-hidden="true">·</span>
+        <a href={site.doctoralia} target="_blank" rel="noopener">Doctoralia</a>
+      </p>
+    </div>
+    <p class="footer__base">Psicóloga Carolina Jaime © {year}. Todos los derechos reservados.</p>
+  </div>
+</footer>
+
+<style>
+  .footer { position: relative; overflow: hidden; background: var(--purple); color: var(--white); }
+  .footer__leaf { position: absolute; width: 110px; right: 40px; top: -36px; transform: rotate(-25deg); pointer-events: none; }
+  .footer__inner { position: relative; display: flex; flex-direction: column; gap: 40px; padding-top: 70px; padding-bottom: 36px; }
+  .footer__row { display: flex; align-items: center; justify-content: space-between; gap: 32px; }
+  .footer__row img { width: 180px; height: auto; }
+  .footer__nav { display: flex; gap: 32px; font-weight: 500; font-size: 15px; }
+  .footer__nav a:hover, .footer__social a:hover { text-decoration: underline; text-underline-offset: 4px; }
+  .footer__social { display: flex; gap: 6px; font-weight: 600; font-size: 14px; color: var(--gold); white-space: nowrap; }
+  .footer__base { padding-top: 24px; border-top: 1px solid rgb(255 255 255 / .2); font-size: 13px; }
+
+  /* Figma "Footer mobile" */
+  @media (max-width: 900px) {
+    .footer__inner { gap: 28px; padding-top: 44px; padding-bottom: 32px; }
+    .footer__row { flex-direction: column; align-items: flex-start; gap: 24px; }
+    .footer__row img { width: 106px; }
+    .footer__nav { flex-wrap: wrap; gap: 12px 20px; font-size: 16px; }
+    .footer__leaf { right: -30px; top: 30px; width: 90px; }
+  }
+</style>

@@ -1,0 +1,53 @@
+---
+// One decorative leaf from the Figma "Hojas" layers, placed against its section.
+// `x` is the left edge on the 1440 frame; leaves on the right half anchor to the
+// right edge instead so they keep hugging it on wider or narrower screens.
+// `float` leaves drift with the scroll (src/scripts/motion.ts); blurred ones sit behind.
+import dorada from '../assets/svg/hoja-dorada.svg';
+import gris from '../assets/svg/hoja-gris.svg';
+import rosa from '../assets/svg/hoja-rosa.svg';
+import doradaBlur10 from '../assets/svg/hoja-dorada-blur-10.svg';
+import rosaBlur10 from '../assets/svg/hoja-rosa-blur-10.svg';
+import rosaBlur10b from '../assets/svg/hoja-rosa-blur-10b.svg';
+import rosaBlur12 from '../assets/svg/hoja-rosa-blur-12.svg';
+import grisBlur6 from '../assets/svg/hoja-gris-blur-6.svg';
+import grisBlur8 from '../assets/svg/hoja-gris-blur-8.svg';
+
+const SOURCES = { dorada, gris, rosa, doradaBlur10, rosaBlur10, rosaBlur10b, rosaBlur12, grisBlur6, grisBlur8 };
+
+interface Props {
+  kind: keyof typeof SOURCES;
+  x: number;          // left on the 1440 frame
+  y: number;          // top, relative to the section
+  w: number;          // width on the 1440 frame
+  rotate?: number;
+  float?: boolean;
+  hideMobile?: boolean;
+  class?: string;
+}
+const { kind, x, y, w, rotate = 0, float = false, hideMobile = false, class: cls } = Astro.props;
+const fromRight = x + w / 2 > 720;
+const side = fromRight ? `right: calc(${1440 - x - w} / 1440 * min(100vw, 1440px))` : `left: calc(${x} / 1440 * min(100vw, 1440px))`;
+const style = `${side}; top: ${y}px; width: calc(${w} / 1440 * min(100vw, 1440px)); --r: ${rotate}deg;`;
+---
+<img
+  class:list={['leaf', { 'leaf--hide-mobile': hideMobile }, cls]}
+  src={SOURCES[kind].src}
+  alt=""
+  aria-hidden="true"
+  loading="lazy"
+  style={style}
+  data-leaf={float ? 'float' : 'still'}
+>
+
+<style>
+  .leaf {
+    /* Inside its section's stacking context: blurred ones behind the content, floating ones over it */
+    position: absolute; z-index: -1; pointer-events: none; user-select: none;
+    min-width: 60px; height: auto; transform: rotate(var(--r));
+  }
+  .leaf[data-leaf='float'] { z-index: 2; }
+  @media (max-width: 700px) {
+    .leaf--hide-mobile { display: none; }
+  }
+</style>

@@ -1,0 +1,130 @@
+---
+// Sobre mi – Propuesta C (Figma 45:95 desktop, 63:549 mobile)
+import Base from '../layouts/Base.astro';
+import Leaf from '../components/Leaf.astro';
+import PageHero from '../components/PageHero.astro';
+import ConsultaCta from '../components/ConsultaCta.astro';
+import Img from '../components/Img.astro';
+import leafGold from '../assets/svg/hoja-dorada.svg';
+import leafRose from '../assets/svg/hoja-rosa-3.svg';
+import { getContent } from '../lib/sanity';
+import { paragraphs, plain, rich } from '../lib/text';
+
+const { site, about } = await getContent();
+const { hero, training, experience } = about;
+---
+<Base site={site} title="Sobre mí" description={`Carolina Jaime, ${plain(hero.text ?? '')}. Formación, experiencia y enfoque de trabajo.`} image={hero.image}>
+  <PageHero site={site} hero={hero} crumb="Sobre mí">
+    <Leaf kind="doradaBlur10" x={1180} y={313} w={380} rotate={8} />
+    <Leaf kind="gris" x={30} y={404} w={110} rotate={-12} float hideMobile />
+  </PageHero>
+
+  <section class="training wrap">
+    <Leaf kind="rosaBlur10" x={-130} y={923} w={300} rotate={20} hideMobile />
+    <div class="training__visual" data-reveal>
+      <span class="training__frame" aria-hidden="true"></span>
+      <Img class="training__photo" pic={training.image} width={400} />
+      <img class="training__leaf" src={leafGold.src} alt="" aria-hidden="true">
+    </div>
+    <div class="training__text">
+      <h2 class="title" data-reveal set:html={rich(training.title)} />
+      <div class="training__body" id="formacion" data-reveal>
+        {paragraphs(training.body).map((p) => <p set:html={rich(p)} />)}
+      </div>
+      <button class="training__more" type="button" aria-expanded="false" aria-controls="formacion" data-more>
+        Leer más <span aria-hidden="true">↓</span>
+      </button>
+      <p class="training__note" data-reveal>{training.note}</p>
+    </div>
+  </section>
+
+  <section class="exp wrap--panel">
+    <div class="exp__panel panel">
+      <img class="exp__leaf" src={leafRose.src} alt="" aria-hidden="true">
+      <h2 class="title exp__title" data-reveal set:html={rich(experience.title)} />
+      <div class="exp__text">
+        <p class="exp__intro" data-reveal>{experience.intro}</p>
+        <ul class="exp__grid">
+          {experience.items.map((item) => (
+            <li data-reveal><img src={leafGold.src} width="22" height="17" alt="" />{item}</li>
+          ))}
+        </ul>
+        <p class="muted exp__outro" data-reveal>{experience.outro}</p>
+      </div>
+    </div>
+  </section>
+
+  <ConsultaCta site={site}>
+    <Leaf kind="dorada" x={-60} y={-77} w={200} float />
+    <Leaf kind="grisBlur8" x={1220} y={460} w={220} rotate={-15} hideMobile />
+  </ConsultaCta>
+</Base>
+
+<script>
+  // Phones show the start of the presentation; the link reveals the rest
+  document.querySelectorAll<HTMLButtonElement>('[data-more]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      btn.closest('.training')?.classList.add('is-expanded');
+      btn.setAttribute('aria-expanded', 'true');
+      btn.hidden = true;
+    });
+  });
+</script>
+
+<style>
+  .training { position: relative; z-index: 1; display: flex; align-items: flex-start; gap: 100px; padding-top: 110px; padding-bottom: 110px; padding-inline: clamp(20px, 11vw, 160px); }
+  .training__visual { position: relative; flex: none; width: 420px; height: 560px; }
+  .training__frame { position: absolute; left: 20px; top: 20px; width: 400px; height: 540px; border: 1.5px solid var(--sage-line); border-radius: 200px 200px 24px 24px; }
+  .training__visual :global(.training__photo) { position: absolute; inset: 0 auto auto 0; width: 400px; height: 540px; object-fit: cover; border-radius: 200px 200px 24px 24px; }
+  .training__leaf { position: absolute; width: 230px; left: 205px; top: 450px; transform: rotate(-10deg); pointer-events: none; }
+  .training__text { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 26px; }
+  .training__body { display: flex; flex-direction: column; gap: 16px; font-size: 18px; line-height: 1.75; }
+  .training__body :global(strong) { font-weight: 600; }
+  .training__note { padding: 24px 28px; border-radius: 20px; background: var(--rose-soft); font-weight: 500; font-size: 17px; line-height: 1.65; }
+
+  .exp { position: relative; z-index: 1; max-width: 1440px; margin-inline: auto; padding-top: 20px; padding-bottom: 60px; }
+  .exp__panel { display: flex; align-items: flex-start; gap: 80px; padding: 90px 100px; background: var(--sage-soft); }
+  .exp__leaf { position: absolute; width: 160px; right: 60px; top: -120px; transform: rotate(-30deg); pointer-events: none; }
+  .exp__title { flex: none; width: 360px; }
+  .exp__text { position: relative; flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 22px; }
+  .exp__intro { font-weight: 500; font-size: 18px; line-height: 1.65; }
+  .exp__grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .exp__grid li { display: flex; align-items: flex-start; gap: 12px; padding: 14px 18px 14px 16px; border-radius: 18px; background: var(--white); font-weight: 500; font-size: 15px; line-height: 1.5; }
+  .exp__grid img { flex: none; margin-top: 2px; }
+  .exp__outro { font-size: 16px; line-height: 1.65; }
+
+  @media (max-width: 1100px) {
+    .training { gap: 56px; }
+    .training__visual { width: 330px; height: 450px; }
+    .training__frame { width: 310px; height: 430px; }
+    .training__visual :global(.training__photo) { width: 310px; height: 430px; }
+    .training__leaf { width: 180px; left: 160px; top: 360px; }
+    .exp__panel { flex-direction: column; gap: 28px; padding: 64px 56px; }
+    .exp__title { width: auto; }
+  }
+  .training__more { display: none; }
+  /* Figma "Sobre mi – Mobile 375": small photo beside the title; the presentation is
+     cut after a few lines with a "Leer más" link */
+  @media (max-width: 760px) {
+    .training { padding-inline: var(--gutter-wide); display: grid; grid-template-columns: 120px 1fr; align-items: center; gap: 24px 20px; padding-top: 56px; padding-bottom: 56px; }
+    .training__text { display: contents; }
+    .training__text > * { grid-column: 1 / -1; }
+    .training__text > .title { grid-column: 2; font-size: 26px; }
+    .training__visual { grid-column: 1; width: 120px; height: 150px; }
+    .training__frame { display: none; }
+    .training__visual :global(.training__photo) { width: 120px; height: 150px; border-radius: 60px 60px 14px 14px; }
+    .training__leaf { display: none; }
+    .training__body { gap: 12px; font-size: 15px; line-height: 1.7; }
+    :global(html.js) .training:not(.is-expanded) .training__body { max-height: 13.6em; overflow: hidden; -webkit-mask-image: linear-gradient(#000 70%, transparent); mask-image: linear-gradient(#000 70%, transparent); }
+    :global(html.js) .training__more {
+      display: inline-flex; justify-self: start; gap: 6px; margin-top: -12px; padding: 4px 0; border: 0; background: none; cursor: pointer;
+      font: 600 14px var(--f-ui); color: var(--purple);
+    }
+    .training__note { padding: 20px; font-size: 16px; }
+    .exp { padding-bottom: 32px; }
+    .exp__panel { padding: 40px 22px; gap: 20px; }
+    .exp__leaf { width: 100px; right: -10px; top: -70px; }
+    .exp__intro { font-size: 16px; }
+    .exp__grid { grid-template-columns: 1fr; }
+  }
+</style>

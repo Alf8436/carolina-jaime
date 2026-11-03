@@ -1,0 +1,131 @@
+@import '@fontsource/abril-fatface/latin-400.css';
+@import '@fontsource/montserrat/latin-300.css';
+@import '@fontsource/montserrat/latin-400.css';
+@import '@fontsource/montserrat/latin-500.css';
+@import '@fontsource/montserrat/latin-600.css';
+@import '@fontsource/montserrat/latin-700.css';
+
+/* Figma variables (Sitio – Propuesta C). The "soft" tones are the base colours at the
+   opacity the design lays over white, measured from the frames. */
+:root {
+  --purple: #81608f;
+  --gold: #f2c791;
+  --rose: #d2afb2;
+  --rose-dark: #bf787e;
+  --sage: #778778;
+  --text: #222;
+  --muted: #6b6b6b;
+  --cream: #f9f8f6;
+  --white: #fff;
+
+  --rose-soft: #f3e9ea;   /* rose ~27%: hero panels */
+  --rose-tint: #f0e3e4;   /* rose ~30%: number and icon discs */
+  --sage-soft: #eef0ee;   /* sage 12%: services panel */
+  --sage-line: #d4d8d4;   /* sage 30%: dividers */
+  --field: #f6f5f3;
+  --field-line: #e3e6e3;
+
+  --f-display: 'Abril Fatface', Georgia, serif;
+  --f-ui: 'Montserrat', system-ui, sans-serif;
+
+  --shadow-card: 0 20px 50px rgb(77 51 77 / .12);
+  --shadow-form: 0 16px 40px rgb(77 51 77 / .1);
+
+  /* Page gutters: 80px (panels) and 120px (content) on the 1440 frame, 20px on phones */
+  --gutter: clamp(20px, 5.6vw, 80px);
+  --gutter-wide: clamp(20px, 8.4vw, 120px);
+  --ease: cubic-bezier(.22, 1, .36, 1);
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; scroll-padding-top: 100px; }  /* anchors land below the sticky header */
+body {
+  margin: 0; background: var(--white); color: var(--text);
+  font: 400 16px/1.55 var(--f-ui);
+  -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility;
+}
+/* The leaves hang past the edges on purpose; nothing should scroll sideways */
+main { overflow-x: clip; position: relative; }
+img, svg { display: block; max-width: 100%; }
+a { color: inherit; text-decoration: none; }
+button, input, select, textarea { font: inherit; color: inherit; }
+h1, h2, h3, h4, p, ul, ol, figure, blockquote { margin: 0; }
+ul, ol { padding: 0; list-style: none; }
+
+/* ---------- Type ---------- */
+/* Light Montserrat headline with Abril Fatface accents (`*accent*` / `_bold_` in Sanity) */
+.title {
+  font: 300 clamp(34px, 3.2vw, 46px)/1.18 var(--f-ui);
+  text-wrap: balance;
+}
+.title strong, .title em { font: 400 1em/1.18 var(--f-display); font-style: normal; }
+.title em, .accent { color: var(--purple); }
+.display { font-family: var(--f-display); font-weight: 400; line-height: 1.2; }
+.eyebrow {
+  display: flex; align-items: center; gap: 10px;
+  font: 700 14px/1.2 var(--f-ui); letter-spacing: 3px; text-transform: uppercase;
+  color: var(--purple);
+}
+.eyebrow img { flex: none; width: 24px; height: auto; }
+@media (max-width: 760px) {
+  .eyebrow { font-size: 13px; }
+  .eyebrow img { width: 20px; }
+}
+.muted { color: var(--muted); }
+
+/* ---------- Buttons (Figma "Botón píldora") ---------- */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  padding: 15px 28px; border-radius: 999px; border: 1.5px solid transparent;
+  font: 600 15px/1.2 var(--f-ui); white-space: nowrap; cursor: pointer;
+  transition: background-color .25s, color .25s, border-color .25s, transform .25s var(--ease);
+}
+.btn:hover { transform: translateY(-2px); }
+.btn:focus-visible { outline: 2px solid var(--purple); outline-offset: 3px; }
+.btn--purple { background: var(--purple); color: var(--white); }
+.btn--purple:hover { background: #6e4f7c; }
+.btn--gold { background: var(--gold); color: var(--text); }
+.btn--gold:hover { background: #ecb874; }
+.btn--outline { border-color: var(--sage); color: var(--sage); background: transparent; }
+.btn--outline:hover { background: var(--sage); color: var(--white); }
+.btn--white { background: var(--white); color: var(--purple); }
+
+.link-more {
+  display: inline-flex; gap: 8px; align-items: center;
+  font: 700 13px/1 var(--f-ui); letter-spacing: 1.5px; text-transform: uppercase; color: var(--purple);
+}
+.link-more span { transition: transform .25s var(--ease); }
+.link-more:hover span { transform: translateX(4px); }
+
+/* ---------- Layout ---------- */
+.wrap { width: 100%; max-width: 1440px; margin-inline: auto; padding-inline: var(--gutter-wide); }
+.wrap--panel { padding-inline: var(--gutter); }
+.panel { border-radius: 44px; position: relative; }
+
+/* Small round icon chip (phone, mail, doctoralia) */
+.chip {
+  flex: none; display: grid; place-items: center; border-radius: 50%;
+  width: 40px; height: 40px; background: var(--rose-tint);
+}
+.chip img { width: 16px; height: 16px; }
+
+.sr-only {
+  position: absolute; width: 1px; height: 1px; overflow: hidden;
+  clip: rect(0 0 0 0); white-space: nowrap;
+}
+
+/* ---------- Scroll reveal (src/scripts/motion.ts) ---------- */
+html.js [data-reveal] { opacity: 0; transform: translateY(28px); }
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  html.js [data-reveal] { opacity: 1; transform: none; }
+}
+
+@media (max-width: 900px) {
+  .panel { border-radius: 28px; }
+}
+/* Figma "Mobile 375": panels 12px from the edge, content 20px */
+@media (max-width: 700px) {
+  :root { --gutter: 12px; --gutter-wide: 20px; }
+  .title { font-size: 30px; }
+}

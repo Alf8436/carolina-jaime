@@ -1,0 +1,21 @@
+---
+// Blog – Propuesta C (Figma 48:215 desktop, 64:1162 mobile)
+import Base from '../../layouts/Base.astro';
+import Leaf from '../../components/Leaf.astro';
+import PageHero from '../../components/PageHero.astro';
+import BlogList from '../../components/BlogList.astro';
+import { getContent } from '../../lib/sanity';
+import { getPosts } from '../../lib/blog';
+
+const [{ site, pages }, { posts, categories }] = await Promise.all([getContent(), getPosts()]);
+const page = pages.blog;
+---
+<Base site={site} title="Blog" description="Artículos y tips de psicología, crianza consciente y educación emocional para promover bienestar día a día." image={page.image}>
+  <PageHero site={site} hero={page} crumb="Blog">
+    <Leaf kind="doradaBlur10" x={1180} y={313} w={380} rotate={8} />
+    <Leaf kind="gris" x={30} y={404} w={110} rotate={-12} float hideMobile />
+  </PageHero>
+  <BlogList site={site} posts={posts} categories={categories}>
+    <Leaf kind="rosaBlur10" x={-140} y={881} w={300} rotate={20} hideMobile />
+  </BlogList>
+</Base>

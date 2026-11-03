@@ -1,0 +1,149 @@
+---
+import logo from '../assets/svg/logo.svg';
+import logoWhite from '../assets/svg/logo-blanco-menu.svg';
+import tel from '../assets/svg/tel.svg';
+import menuIcon from '../assets/svg/menu.svg';
+import closeIcon from '../assets/svg/cerrar.svg';
+import leafGold from '../assets/svg/hoja-dorada-menu.svg';
+import leafRose from '../assets/svg/hoja-rosa-menu.svg';
+import type { Site } from '../lib/content';
+import { waLink } from '../lib/text';
+import { NAV } from '../lib/nav';
+
+interface Props { site: Site; current: string }
+const { site, current } = Astro.props;
+
+const isCurrent = (href: string) => (href === '/' ? current === '/' : current.startsWith(href));
+---
+<header class="header">
+  <div class="header__bar wrap">
+    <a href="/" class="header__logo" aria-label="Carolina Jaime, inicio">
+      <img src={logo.src} width="180" height="68" alt="Carolina Jaime · Psicoterapeuta">
+    </a>
+
+    <nav class="header__nav" aria-label="Principal">
+      {NAV.map((l) => <a href={l.href} aria-current={isCurrent(l.href) ? 'page' : undefined}>{l.label}</a>)}
+    </nav>
+
+    <div class="header__actions">
+      <a class="btn btn--outline header__wa" href={waLink(site.whatsapp)} target="_blank" rel="noopener">{site.whatsappLabel}</a>
+      <!-- Below the desktop layout: just the round phone icon (Figma "Header mobile") -->
+      <a class="header__phone" href={waLink(site.whatsapp)} target="_blank" rel="noopener">
+        <span class="chip chip--sm"><img src={tel.src} width="16" height="16" alt=""></span>
+        <span class="sr-only">por WhatsApp</span>
+      </a>
+      <a class="btn btn--purple header__book" href={site.doctoralia} target="_blank" rel="noopener">{site.bookingLabel}</a>
+      <button class="header__burger" type="button" aria-label="Abrir menú" aria-expanded="false" aria-controls="menu" data-menu-open>
+        <img src={menuIcon.src} width="18" height="14" alt="">
+      </button>
+    </div>
+  </div>
+
+  <!-- Figma "Menú mobile abierto" -->
+  <div class="menu" id="menu" role="dialog" aria-modal="true" aria-label="Menú" hidden>
+    <img class="menu__leaf menu__leaf--rose" src={leafRose.src} alt="">
+    <img class="menu__leaf menu__leaf--gold" src={leafGold.src} alt="">
+    <div class="menu__bar">
+      <a href="/" aria-label="Carolina Jaime, inicio"><img src={logoWhite.src} width="106" height="40" alt=""></a>
+      <button class="menu__close" type="button" aria-label="Cerrar menú" data-menu-close>
+        <img src={closeIcon.src} width="14" height="14" alt="">
+      </button>
+    </div>
+    <nav class="menu__links" aria-label="Principal">
+      {NAV.map((l) => (
+        <a href={l.href} aria-current={isCurrent(l.href) ? 'page' : undefined}>
+          <span>{l.label}</span><span aria-hidden="true">→</span>
+        </a>
+      ))}
+    </nav>
+    <div class="menu__contact">
+      <a class="btn btn--gold" href={site.doctoralia} target="_blank" rel="noopener">{site.bookingLabel}</a>
+      <a class="btn btn--white" href={waLink(site.whatsapp)} target="_blank" rel="noopener">{site.whatsappLabel}</a>
+    </div>
+  </div>
+</header>
+
+<script>
+  const menu = document.getElementById('menu')!;
+  const opener = document.querySelector<HTMLButtonElement>('[data-menu-open]')!;
+  const setOpen = (open: boolean) => {
+    menu.hidden = !open;
+    opener.setAttribute('aria-expanded', String(open));
+    document.documentElement.classList.toggle('menu-open', open);
+    (open ? menu.querySelector<HTMLElement>('[data-menu-close]') : opener)?.focus();
+  };
+  opener.addEventListener('click', () => setOpen(true));
+  menu.querySelector('[data-menu-close]')!.addEventListener('click', () => setOpen(false));
+  addEventListener('keydown', (e) => { if (e.key === 'Escape' && !menu.hidden) setOpen(false); });
+  matchMedia('(min-width: 1101px)').addEventListener('change', (e) => { if (e.matches) setOpen(false); });
+
+  // The header stays on top while browsing; once the page scrolls it compacts and casts a shadow.
+  // Compacting shrinks it ~43px, so the two thresholds sit apart to avoid flickering at the edge.
+  const header = document.querySelector<HTMLElement>('.header')!;
+  const onScroll = () => {
+    if (scrollY > 80) header.classList.add('is-scrolled');
+    else if (scrollY < 8) header.classList.remove('is-scrolled');
+  };
+  addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+</script>
+
+<style>
+  .header { position: sticky; top: 0; z-index: 20; background: var(--white); transition: box-shadow .3s; }
+  .header__bar { display: flex; align-items: center; justify-content: space-between; gap: 24px; padding-block: 24px; transition: padding .3s; }
+  .header__logo img { width: 180px; height: auto; transition: width .3s; }
+  .header.is-scrolled { box-shadow: 0 4px 8px rgb(77 51 77 / .06); }
+  .header.is-scrolled .header__bar { padding-block: 12px; }
+  .header.is-scrolled .header__logo img { width: 130px; }
+
+  .header__nav { display: flex; gap: 36px; }
+  .header__nav a { font-weight: 500; font-size: 15px; transition: color .2s; }
+  .header__nav a:hover, .header__nav a[aria-current] { color: var(--purple); }
+  .header__nav a[aria-current] { font-weight: 600; }
+
+  .header__actions { display: flex; align-items: center; gap: 20px; }
+  .header__phone { display: none; }
+  .chip--sm { width: 36px; height: 36px; }
+  .header__burger { display: none; }
+
+  /* Below the desktop layout: Figma "Header mobile" */
+  @media (max-width: 1100px) {
+    .header { box-shadow: 0 4px 8px rgb(77 51 77 / .06); }
+    .header__bar, .header.is-scrolled .header__bar { padding-block: 12px; }
+    .header__logo img, .header.is-scrolled .header__logo img { width: 106px; }
+    .header__nav, .header__book, .header__wa { display: none; }
+    .header__phone { display: flex; }
+    .header__actions { gap: 10px; }
+    .header__phone .chip--sm { width: 40px; height: 40px; }
+    .header__burger {
+      display: grid; place-items: center; width: 40px; height: 40px; border: 0; border-radius: 50%;
+      background: var(--purple); cursor: pointer;
+    }
+  }
+
+  .menu {
+    position: fixed; inset: 0; z-index: 50; overflow: hidden auto;
+    display: flex; flex-direction: column; gap: 40px; padding: 20px 28px 40px;
+    background: var(--purple); color: var(--white);
+  }
+  .menu[hidden] { display: none; }
+  .menu__leaf { position: absolute; pointer-events: none; }
+  .menu__leaf--gold { width: 200px; left: -60px; bottom: -40px; }
+  .menu__leaf--rose { width: 206px; right: -80px; bottom: -30px; transform: rotate(-25deg); }
+  .menu__bar { display: flex; align-items: center; justify-content: space-between; }
+  .menu__close {
+    display: grid; place-items: center; width: 40px; height: 40px; border: 0; border-radius: 50%;
+    background: rgb(255 255 255 / .2); cursor: pointer;
+  }
+  .menu__links { display: flex; flex-direction: column; gap: 6px; }
+  .menu__links a {
+    display: flex; justify-content: space-between; align-items: center; padding-block: 12px;
+    border-bottom: 1px solid rgb(255 255 255 / .25);
+    font: 400 32px/1.2 var(--f-display);
+  }
+  .menu__links a span:last-child { font: 500 20px var(--f-ui); }
+  .menu__links a[aria-current] { color: var(--gold); }
+  .menu__contact { position: relative; display: flex; flex-direction: column; gap: 14px; font-weight: 500; font-size: 15px; }
+  .menu__contact .btn { width: 100%; }
+  :global(html.menu-open) { overflow: hidden; }
+</style>

@@ -1,0 +1,52 @@
+---
+import '../styles/global.css';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import type { Pic, Site } from '../lib/content';
+import { sized } from '../lib/sanity';
+
+interface Props { site: Site; title?: string; description?: string; image?: Pic }
+const { site, title, description, image } = Astro.props;
+
+const pageTitle = title ? `${title} · Carolina Jaime` : site.seoTitle;
+const pageDescription = description ?? site.seoDescription;
+const canonical = new URL(Astro.url.pathname, Astro.site).href;
+const share = image ?? site.shareImage;
+const shareUrl = share ? new URL(sized(share.src, 1200), Astro.site).href : undefined;
+// The temporary *.workers.dev address stays out of Google until the domain moves over
+const preview = Astro.url.hostname.endsWith('.workers.dev');
+---
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{pageTitle}</title>
+    <meta name="description" content={pageDescription}>
+    <link rel="canonical" href={canonical}>
+    {preview && <meta name="robots" content="noindex, nofollow">}
+    <link rel="icon" href="/favicon.png" type="image/png">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    <meta name="theme-color" content="#81608f">
+    <meta property="og:type" content="website">
+    <meta property="og:locale" content="es_PE">
+    <meta property="og:site_name" content="Carolina Jaime · Psicoterapeuta">
+    <meta property="og:title" content={pageTitle}>
+    <meta property="og:description" content={pageDescription}>
+    <meta property="og:url" content={canonical}>
+    {shareUrl && <meta property="og:image" content={shareUrl}>}
+    <meta name="twitter:card" content="summary_large_image">
+    <script is:inline>document.documentElement.classList.add('js')</script>
+    <slot name="head" />
+  </head>
+  <body>
+    <Header site={site} current={Astro.url.pathname} />
+    <main>
+      <slot />
+    </main>
+    <Footer site={site} />
+    <script>
+      import '../scripts/motion';
+    </script>
+  </body>
+</html>

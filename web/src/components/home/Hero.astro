@@ -1,0 +1,138 @@
+---
+import leafRose from '../../assets/svg/hoja-rosa.svg';
+import leafGold from '../../assets/svg/hoja-dorada.svg';
+import leafGrey from '../../assets/svg/hoja-gris.svg';
+import leafRoseSoft from '../../assets/svg/hoja-rosa-2.svg';
+import Img from '../Img.astro';
+import type { Home, Service, Site } from '../../lib/content';
+import { rich, waLink } from '../../lib/text';
+
+interface Props { hero: Home['hero']; services: Service[]; site: Site }
+const { hero, services, site } = Astro.props;
+const half = Math.ceil(services.length / 2);
+const columns = [services.slice(0, half), services.slice(half)];
+---
+<section class="hero wrap--panel">
+  <div class="hero__panel panel">
+    <div class="hero__visual" data-reveal>
+      <img class="hero__leaf hero__leaf--rose" src={leafRose.src} alt="" aria-hidden="true">
+      <Img class="hero__photo" pic={hero.image} width={460} eager />
+      <img class="hero__leaf hero__leaf--gold" src={leafGold.src} alt="" aria-hidden="true">
+      <img class="hero__leaf hero__leaf--grey" src={leafGrey.src} alt="" aria-hidden="true">
+    </div>
+    <div class="hero__text">
+      <h1 class="hero__title" data-reveal set:html={rich(hero.title)} />
+      <p class="hero__lead" data-reveal>{hero.text}</p>
+      <a class="btn btn--purple" href={hero.cta.href} data-reveal>{hero.cta.label}</a>
+    </div>
+  </div>
+
+  <div class="hero__cards">
+    <div class="hero__services" data-reveal>
+      <h2 class="hero__services-title" set:html={rich(hero.servicesTitle)} />
+      <div class="hero__cols">
+        {columns.map((col) => (
+          <ul>
+            {col.map((s) => (
+              <li><a href={`/servicios#${s.slug}`}><img src={leafGold.src} width="16" height="12" alt="" />{s.shortTitle}</a></li>
+            ))}
+          </ul>
+        ))}
+      </div>
+    </div>
+    <div class="hero__book" data-reveal>
+      <img class="hero__book-leaf" src={leafRoseSoft.src} alt="" aria-hidden="true">
+      <p class="display hero__book-title">{hero.bookTitle}</p>
+      <div class="hero__book-btns">
+        <a class="btn btn--gold" href={site.doctoralia} target="_blank" rel="noopener">{site.bookingLabel}</a>
+        <a class="btn btn--white" href={waLink(site.whatsapp)} target="_blank" rel="noopener">{site.whatsappLabel}</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .hero { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; padding-top: 10px; padding-bottom: 40px; max-width: 1440px; margin-inline: auto; }
+  .hero__panel {
+    width: 100%; display: flex; align-items: center; gap: 70px;
+    padding: 80px 100px 170px 110px; margin-bottom: -90px;
+    background: var(--rose-soft); border-radius: 44px;
+  }
+  .hero__visual { position: relative; flex: none; width: 500px; height: 520px; }
+  .hero__visual :global(.hero__photo) {
+    position: absolute; left: 20px; top: 10px; width: 460px; height: 500px; object-fit: cover;
+    border-radius: 240px 240px 240px 48px;
+  }
+  .hero__leaf { position: absolute; pointer-events: none; }
+  .hero__leaf--rose { width: 264px; left: -170px; top: 20px; transform: rotate(60deg); }
+  .hero__leaf--gold { width: 260px; left: 300px; top: 390px; }
+  .hero__leaf--grey { width: 110px; left: -40px; top: 390px; transform: rotate(-10deg); }
+
+  .hero__text { flex: 1; min-width: 0; display: flex; flex-direction: column; align-items: flex-start; gap: 28px; }
+  .hero__title {
+    max-width: 500px; padding: 22px 28px; border: 1.5px solid var(--purple); border-radius: 6px;
+    font: 300 clamp(40px, 3.9vw, 56px)/1.18 var(--f-ui); color: var(--text);
+  }
+  .hero__title :global(strong), .hero__title :global(em) { font: 400 1em/1.18 var(--f-display); font-style: normal; }
+  .hero__title :global(em) { color: var(--purple); }
+  .hero__lead { max-width: 500px; font-size: 18px; line-height: 1.6; color: var(--muted); }
+
+  .hero__cards { position: relative; display: flex; gap: 24px; width: min(1060px, 100%); }
+  .hero__services {
+    flex: 1; display: flex; flex-direction: column; gap: 18px; padding: 36px;
+    background: var(--white); border-radius: 28px; box-shadow: var(--shadow-card);
+  }
+  .hero__services-title { font: 300 30px/1.2 var(--f-ui); }
+  .hero__services-title :global(em), .hero__services-title :global(strong) { font: 400 1em/1.2 var(--f-display); font-style: normal; color: var(--purple); }
+  .hero__cols { display: flex; gap: 24px; }
+  .hero__cols ul { flex: 1; display: flex; flex-direction: column; gap: 12px; }
+  .hero__cols a { display: flex; align-items: center; gap: 10px; font-weight: 500; font-size: 15px; transition: color .2s; }
+  .hero__cols a:hover { color: var(--purple); }
+
+  .hero__book {
+    position: relative; overflow: hidden; flex: none; width: 340px; display: flex; flex-direction: column; gap: 16px;
+    padding: 36px; border-radius: 28px; background: var(--purple); color: var(--white); box-shadow: var(--shadow-card);
+  }
+  .hero__book-leaf { position: absolute; width: 150px; left: 230px; top: -100px; transform: rotate(-30deg); pointer-events: none; }
+  .hero__book-title { position: relative; font-size: 32px; line-height: 1.2; }
+  .hero__book-btns { position: relative; display: flex; flex-direction: column; gap: 16px; }
+  .hero__book-btns .btn { width: 100%; }
+
+  @media (max-width: 1240px) {
+    .hero__panel { gap: 48px; padding: 64px 56px 150px; }
+    .hero__visual { width: 420px; height: 460px; }
+    .hero__visual :global(.hero__photo) { width: 390px; height: 440px; }
+    .hero__leaf--gold { left: 240px; top: 340px; width: 220px; }
+    .hero__leaf--grey { top: 330px; }
+  }
+
+  /* Figma "Home – Mobile 375" hero */
+  @media (max-width: 900px) {
+    .hero { padding-top: 8px; padding-bottom: 24px; }
+    .hero__panel { flex-direction: column; gap: 28px; padding: 28px 20px 80px; margin-bottom: -56px; border-radius: 28px; }
+    .hero__visual { width: min(280px, 100%); height: 290px; margin-inline: auto; }
+    .hero__visual :global(.hero__photo) { left: 10px; top: 0; width: calc(100% - 20px); height: 280px; border-radius: 140px 140px 140px 40px; }
+    .hero__leaf--rose { width: 170px; left: -120px; top: 40px; }
+    .hero__leaf--gold { width: 160px; left: auto; right: -50px; top: 230px; }
+    .hero__leaf--grey { width: 60px; left: -10px; top: 200px; }
+    .hero__text { width: 100%; gap: 22px; }
+    .hero__title { max-width: none; width: 100%; padding: 18px 16px; font-size: 32px; }
+    .hero__lead { font-size: 16px; }
+    .hero__text .btn { width: 100%; }
+
+    .hero__cards { flex-direction: column; gap: 16px; padding-inline: 8px; }
+    .hero__services { padding: 24px 22px; gap: 14px; }
+    .hero__services-title { font-size: 26px; }
+    .hero__cols { flex-direction: column; gap: 8px; }
+    .hero__cols ul { gap: 8px; }
+    .hero__cols a {
+      display: inline-flex; padding: 8px 14px; border: 1px solid var(--field-line); border-radius: 999px;
+      background: var(--cream); font-size: 14px;
+    }
+    .hero__book { width: 100%; gap: 10px; padding: 22px; border-radius: 24px; }
+    .hero__book-title { font-size: 24px; }
+    .hero__book-btns { flex-direction: row; gap: 10px; }
+    .hero__book-btns .btn { flex: 1; width: auto; padding-inline: 12px; }
+    .hero__book-leaf { width: 80px; left: auto; right: -10px; top: -20px; }
+  }
+</style>

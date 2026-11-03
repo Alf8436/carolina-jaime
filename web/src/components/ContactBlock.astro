@@ -1,0 +1,104 @@
+---
+// Contact details + form (Home "Contáctame", Contacto page "¿Tienes una consulta?").
+// The form posts to /api/contact, which emails psicologa@ through Resend.
+import mailIcon from '../assets/svg/mail.svg';
+import Eyebrow from './Eyebrow.astro';
+import type { Service, Site } from '../lib/content';
+import { rich, waLink } from '../lib/text';
+
+// title: `*…*` goes in purple
+interface Props { site: Site; services: Service[]; eyebrow?: string; title: string; text?: string; tone?: 'cream' | 'white' }
+const { site, services, eyebrow, title, text, tone = 'cream' } = Astro.props;
+const turnstileKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY as string | undefined;
+---
+<section class:list={['contact', `contact--${tone}`]}>
+  <div class="wrap contact__inner">
+    <div class="contact__info">
+      {eyebrow && <Eyebrow text={eyebrow} />}
+      <h2 class="display contact__title" data-reveal set:html={rich(title)} />
+      {text && <p class="muted contact__lead" data-reveal>{text}</p>}
+      <ul class="contact__list">
+        <li data-reveal><a href={`mailto:${site.email}`}><span class="chip"><img src={mailIcon.src} alt="" /></span>{site.email}</a></li>
+      </ul>
+      <div class="contact__btns" data-reveal>
+        <a class="btn btn--purple" href={site.doctoralia} target="_blank" rel="noopener">{site.bookingLabel}</a>
+        <a class="btn btn--outline" href={waLink(site.whatsapp)} target="_blank" rel="noopener">{site.whatsappLabel}</a>
+      </div>
+    </div>
+
+    <form class="contact__form" action="/api/contact" method="post" data-form="contact" data-reveal>
+      <div class="contact__row">
+        <label><span class="sr-only">Nombre</span><input name="name" required autocomplete="name" placeholder="Nombre" maxlength="120"></label>
+        <label><span class="sr-only">Email</span><input name="email" type="email" required autocomplete="email" placeholder="Email" maxlength="160"></label>
+      </div>
+      <label class="contact__select">
+        <span class="sr-only">Servicio</span>
+        <select name="service" required>
+          <option value="" disabled selected>Selecciona Servicio:</option>
+          {services.map((s) => <option>{s.title}</option>)}
+          <option>Otro</option>
+        </select>
+      </label>
+      <label><span class="sr-only">Mensaje</span><textarea name="message" required placeholder="Mensaje" rows="5" maxlength="4000"></textarea></label>
+      <input class="sr-only" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
+      {turnstileKey && <div class="cf-turnstile" data-sitekey={turnstileKey} data-size="flexible" data-appearance="interaction-only"></div>}
+      <div class="contact__actions">
+        <p class="contact__status" role="status" data-status></p>
+        <button class="btn btn--purple" type="submit">Enviar</button>
+      </div>
+    </form>
+  </div>
+</section>
+{turnstileKey && <script is:inline src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>}
+
+<style>
+  .contact { position: relative; z-index: 1; }
+  .contact--cream { background: var(--cream); }
+  .contact__inner { display: flex; align-items: center; gap: 90px; padding-top: 110px; padding-bottom: 110px; }
+  .contact__info { flex: none; width: 420px; display: flex; flex-direction: column; align-items: flex-start; gap: 22px; }
+  .contact__title { font-size: clamp(38px, 3.5vw, 50px); line-height: 1.12; }
+  .contact__title :global(em) { font-style: normal; color: var(--purple); }
+  .contact__lead { font-size: 17px; }
+  .contact__list { display: flex; flex-direction: column; gap: 22px; }
+  .contact__list a { display: flex; align-items: center; gap: 14px; font-weight: 500; font-size: 16px; word-break: break-word; }
+  .contact__list a:hover { color: var(--purple); }
+  .contact__btns { display: flex; flex-wrap: wrap; gap: 12px; }
+
+  .contact__form {
+    flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 16px; padding: 44px;
+    background: var(--white); border-radius: 32px; box-shadow: var(--shadow-form);
+  }
+  .contact__row { display: flex; gap: 16px; }
+  .contact__row label { flex: 1; min-width: 0; }
+  .contact__form input, .contact__form select, .contact__form textarea {
+    width: 100%; height: 56px; padding: 0 22px; border: 1px solid var(--field-line); border-radius: 999px;
+    background: var(--field); font-size: 15px; outline: none; transition: border-color .2s, box-shadow .2s;
+  }
+  .contact__form textarea { height: 150px; padding: 18px 22px; border-radius: 24px; resize: vertical; }
+  .contact__form ::placeholder { color: #8a8a8a; }
+  .contact__form input:focus, .contact__form select:focus, .contact__form textarea:focus { border-color: var(--purple); box-shadow: 0 0 0 3px rgb(129 96 143 / .15); }
+  .contact__select { position: relative; }
+  .contact__select::after {
+    content: ''; position: absolute; right: 24px; top: 50%; width: 8px; height: 8px; margin-top: -6px; pointer-events: none;
+    border-right: 1.6px solid var(--text); border-bottom: 1.6px solid var(--text); transform: rotate(45deg);
+  }
+  .contact__form select { appearance: none; cursor: pointer; }
+  .contact__form select:invalid { color: #8a8a8a; }
+  .contact__actions { display: flex; align-items: center; justify-content: flex-end; gap: 16px; }
+  .contact__status { flex: 1; font-size: 14px; font-weight: 500; color: var(--purple); }
+  .contact__status.is-error { color: var(--rose-dark); }
+
+  @media (max-width: 1000px) {
+    .contact__inner { flex-direction: column; align-items: stretch; gap: 32px; padding-top: 72px; padding-bottom: 72px; }
+    .contact__info { width: auto; }
+  }
+  @media (max-width: 700px) {
+    .contact__form { padding: 20px; border-radius: 24px; }
+    .contact__row { flex-direction: column; }
+    .contact__actions { flex-direction: column-reverse; align-items: stretch; }
+    .contact__actions .btn { width: 100%; }
+    .contact__title { font-size: 34px; }
+    .contact__btns { width: 100%; }
+    .contact__btns .btn { flex: 1; padding-inline: 16px; }
+  }
+</style>

@@ -1,0 +1,126 @@
+---
+// Servicios – Propuesta C (Figma 46:106 desktop, 64:950 mobile). Accordion: one open
+// at a time, the first open by default, or the one named in the URL (#slug).
+import Base from '../layouts/Base.astro';
+import Leaf from '../components/Leaf.astro';
+import PageHero from '../components/PageHero.astro';
+import ConsultaCta from '../components/ConsultaCta.astro';
+import Img from '../components/Img.astro';
+import leafGold from '../assets/svg/hoja-dorada.svg';
+import arrowDown from '../assets/svg/flecha-abajo.svg';
+import { getContent } from '../lib/sanity';
+import { paragraphs, rich } from '../lib/text';
+
+const { site, pages, services } = await getContent();
+const page = pages.services;
+---
+<Base site={site} title="Servicios" description={`Servicios de psicología: ${services.map((s) => s.title.toLowerCase()).join(', ')}.`} image={page.image}>
+  <PageHero site={site} hero={page} crumb="Servicios" shape="arch">
+    <Leaf kind="doradaBlur10" x={1180} y={313} w={380} rotate={8} />
+    <Leaf kind="gris" x={30} y={404} w={110} rotate={-12} float hideMobile />
+  </PageHero>
+
+  <section class="acc wrap">
+    <Leaf kind="rosaBlur10" x={-140} y={1073} w={300} rotate={20} hideMobile />
+    <!-- Figma "Introducción": the guiding line and, at its foot, how to use the accordion -->
+    <div class="acc__intro" data-reveal>
+      <p class="acc__lead">
+        <img src={leafGold.src} width="40" height="30" alt="" aria-hidden="true" />
+        <span set:html={rich(page.lead)} />
+      </p>
+      <p class="acc__hint">
+        <span class="acc__hint--desk">{page.hint}</span><span class="acc__hint--touch">{page.hintTouch}</span>
+        <img src={arrowDown.src} width="14" height="14" alt="" aria-hidden="true" />
+      </p>
+    </div>
+    {services.map((s, i) => (
+      <details class="acc__item" id={s.slug} name="servicios" open={i === 0} data-reveal>
+        <summary>
+          <Img class="acc__thumb" pic={s.icon} width={64} />
+          <h2 class="display">{s.title}</h2>
+          <span class="acc__icon" aria-hidden="true"></span>
+        </summary>
+        <div class="acc__body">
+          <Img class="acc__img" pic={s.image} width={460} />
+          <div class="acc__copy">{paragraphs(s.body).map((p) => <p set:html={rich(p)} />)}</div>
+        </div>
+      </details>
+    ))}
+  </section>
+
+  <ConsultaCta site={site}>
+    <Leaf kind="dorada" x={1250} y={-73} w={208} float hideMobile />
+  </ConsultaCta>
+</Base>
+
+<script>
+  // Open the service named in the URL (links from the Home hero) and bring it into view
+  const open = () => {
+    const target = location.hash && document.getElementById(decodeURIComponent(location.hash.slice(1)));
+    if (target instanceof HTMLDetailsElement) {
+      target.open = true;
+      target.scrollIntoView({ block: 'start' });
+    }
+  };
+  open();
+  addEventListener('hashchange', open);
+</script>
+
+<style>
+  .acc { position: relative; z-index: 1; display: flex; flex-direction: column; gap: 16px; padding-top: 80px; padding-bottom: 60px; }
+  .acc__intro {
+    display: flex; align-items: flex-end; justify-content: space-between; gap: 20px;
+    margin-bottom: 8px; padding-bottom: 28px; border-bottom: 1px solid var(--sage);
+  }
+  .acc__lead { display: flex; align-items: flex-start; gap: 18px; font: 300 clamp(26px, 2.4vw, 34px)/1.25 var(--f-ui); }
+  .acc__lead img { flex: none; width: 40px; height: auto; margin-left: 7px; }
+  .acc__lead :global(em), .acc__lead :global(strong) { font: 400 1em/1.25 var(--f-display); font-style: normal; color: var(--purple); }
+  .acc__hint { flex: none; display: flex; align-items: center; gap: 8px; font-weight: 500; font-size: 14px; color: var(--muted); }
+  .acc__hint--touch { display: none; }
+  .acc__item { scroll-margin-top: 100px; border: 1px solid var(--field-line); border-radius: 28px; background: var(--white); transition: background-color .3s, border-color .3s; }
+  .acc__item[open] { background: var(--rose-soft); border-color: transparent; }
+  .acc__item summary { display: flex; align-items: center; gap: 22px; padding: 24px 32px; cursor: pointer; list-style: none; }
+  .acc__item summary::-webkit-details-marker { display: none; }
+  .acc__item summary:focus-visible { outline: 2px solid var(--purple); outline-offset: -2px; border-radius: 28px; }
+  .acc__item :global(.acc__thumb) { flex: none; width: 64px; height: 64px; border-radius: 50%; object-fit: cover; }
+  .acc__item h2 { flex: 1; min-width: 0; font-size: 28px; line-height: 1.18; }
+  .acc__item summary:hover h2 { color: var(--purple); }
+  /* Plus that turns into a minus */
+  .acc__icon { position: relative; flex: none; width: 44px; height: 44px; border-radius: 50%; background: var(--purple); }
+  .acc__icon::before, .acc__icon::after { content: ''; position: absolute; left: 15px; top: 21px; width: 14px; height: 2px; border-radius: 2px; background: var(--white); transition: transform .3s var(--ease); }
+  .acc__icon::after { transform: rotate(90deg); }
+  .acc__item[open] .acc__icon::after { transform: rotate(0deg); }
+
+  .acc__body { display: flex; align-items: flex-start; gap: 48px; padding: 4px 32px 24px; }
+  .acc__body :global(.acc__img) { flex: none; width: 460px; max-width: 42%; height: 320px; object-fit: cover; border-radius: 160px 160px 24px 24px; }
+  .acc__copy { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1.7em; font-size: 17px; line-height: 1.7; }
+  .acc__copy :global(em) { font-style: normal; font-weight: 700; color: var(--purple); }
+  .acc__item[open] .acc__body { animation: open .45s var(--ease); }
+  @keyframes open { from { opacity: 0; transform: translateY(-8px); } }
+
+  /* Figma "Acordeón servicio" mobile */
+  @media (max-width: 960px) {
+    .acc__intro { flex-direction: column; align-items: flex-start; gap: 14px; }
+  }
+  @media (max-width: 760px) {
+    .acc { gap: 12px; padding-top: 28px; padding-bottom: 40px; }
+    .acc__intro { margin-bottom: 6px; padding-bottom: 18px; }
+    .acc__lead { flex-direction: column; gap: 14px; font-size: 23px; }
+    .acc__lead img { width: 30px; margin-left: 5px; }
+    .acc__hint { font-size: 13px; }
+    .acc__hint--desk { display: none; }
+    .acc__hint--touch { display: inline; }
+    .acc__item, .acc__item summary:focus-visible { border-radius: 22px; }
+    .acc__item summary { gap: 14px; padding: 16px; }
+    .acc__item :global(.acc__thumb) { width: 48px; height: 48px; }
+    .acc__item h2 { font-size: 19px; }
+    .acc__icon { width: 36px; height: 36px; }
+    .acc__icon::before, .acc__icon::after { left: 11px; top: 17px; }
+    .acc__body { flex-direction: column; gap: 20px; padding: 0 16px 20px; }
+    .acc__body :global(.acc__img) { width: 100%; max-width: none; height: 200px; border-radius: 100px 100px 18px 18px; }
+    .acc__copy { font-size: 15px; gap: 1.2em; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .acc__item[open] .acc__body { animation: none; }
+  }
+</style>

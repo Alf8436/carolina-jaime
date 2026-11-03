@@ -1,0 +1,12 @@
+<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="404.067" height="289.703" viewBox="0 0 404.067 289.703" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="Hoja dorada &#194;&#183; flotante &#194;&#183; grande &#194;&#183; desenfocada 10" opacity="0.7" filter="url(#filter0_f_0_30)">
+<path id="Vector" d="M11.0379 252.689C3.77862 252.465 36.8492 178.348 40.517 173.002C58.9091 145.754 84.1391 122.849 110.545 103.705C162.841 65.363 225.263 34.8193 290.146 31.0549C329.385 28.8278 405.593 26.2221 392.593 82.1081C383.957 120.756 352.895 149.827 321.079 171.018C232.795 230.645 115.61 252.464 11.0379 252.689Z" fill="#F2C791"/>
+</g>
+<defs>
+<filter id="filter0_f_0_30" x="-0.251342" y="-10" width="404.318" height="309.703" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+<feFlood flood-opacity="0" result="BackgroundImageFix"/>
+<feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/>
+<feGaussianBlur stdDeviation="5" result="effect1_foregroundBlur_0_30"/>
+</filter>
+</defs>
+</svg>

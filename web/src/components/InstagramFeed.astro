@@ -1,0 +1,59 @@
+---
+import igIcon from '../assets/svg/instagram.svg';
+import Img from './Img.astro';
+import Dots from './Dots.astro';
+import type { Site } from '../lib/content';
+import { rich } from '../lib/text';
+
+interface Props { site: Site; tone?: 'white' | 'cream' }
+const { site, tone = 'white' } = Astro.props;
+const feed = site.instagramFeed;
+---
+<section class:list={['ig', `ig--${tone}`]}>
+  <slot />
+  <div class="wrap ig__inner">
+    <a class="ig__handle" href={site.instagram} target="_blank" rel="noopener" data-reveal>{site.instagramHandle}</a>
+    <h2 class="title ig__title" data-reveal set:html={rich(feed.title)} />
+    <ul class="ig__feed" data-slider>
+      {feed.posts.map((p) => (
+        <li data-reveal data-slide>
+          <a href={p.url} target="_blank" rel="noopener">
+            <Img pic={p.image} width={227} />
+            <img class="ig__icon" src={igIcon.src} alt="" />
+            <span class="sr-only">Ver en Instagram</span>
+          </a>
+        </li>
+      ))}
+    </ul>
+    <Dots count={feed.posts.length} />
+    <a class="btn btn--outline" href={site.instagram} target="_blank" rel="noopener" data-reveal>Seguir</a>
+  </div>
+</section>
+
+<style>
+  .ig { position: relative; z-index: 1; }
+  .ig--cream { background: var(--cream); }
+  .ig__inner { display: flex; flex-direction: column; align-items: center; gap: 20px; padding-top: 60px; padding-bottom: 110px; }
+  .ig--cream .ig__inner { padding-top: 90px; }
+  .ig__handle { font-weight: 600; font-size: 15px; color: var(--purple); }
+  .ig__title { text-align: center; margin-bottom: 20px; }
+  .ig__feed { width: 100%; display: grid; grid-template-columns: repeat(5, 1fr); gap: 16px; margin-bottom: 20px; }
+  .ig__feed a { position: relative; display: block; overflow: hidden; aspect-ratio: 1; border-radius: 18px; }
+  .ig__feed a :global(img:first-child) { width: 100%; height: 100%; object-fit: cover; transition: transform .6s var(--ease); }
+  .ig__feed a:hover :global(img:first-child) { transform: scale(1.05); }
+  .ig__icon { position: absolute; top: 12px; right: 12px; width: 18px; height: 18px; }
+  .ig :global(.dots) { display: none; }
+
+  @media (max-width: 700px) {
+    .ig__inner { gap: 14px; padding-top: 40px; padding-bottom: 64px; }
+    .ig__title { margin-bottom: 8px; }
+    .ig__feed {
+      width: auto; align-self: stretch;
+      display: flex; gap: 12px; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; margin-bottom: 0;
+      margin-inline: calc(var(--gutter-wide) * -1); padding-inline: var(--gutter-wide); scroll-padding-inline: var(--gutter-wide);
+    }
+    .ig__feed::-webkit-scrollbar { display: none; }
+    .ig__feed li { flex: 0 0 150px; scroll-snap-align: start; }
+    .ig :global(.dots) { display: flex; margin-bottom: 8px; }
+  }
+</style>

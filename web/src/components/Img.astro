@@ -1,0 +1,24 @@
+---
+// A content picture (Sanity or local). Sanity images get a 1x/2x srcset from its CDN.
+import type { Pic } from '../lib/content';
+import { sized } from '../lib/sanity';
+
+interface Props { pic: Pic; width: number; class?: string; eager?: boolean; alt?: string }
+const { pic, width, class: cls, eager = false, alt } = Astro.props;
+const height = Math.round((width * pic.height) / pic.width);
+const remote = pic.src.includes('cdn.sanity.io');
+// Keep the focus point marked in Sanity in view when CSS crops the photo (object-fit: cover)
+const position = pic.hotspot ? `object-position: ${Math.round(pic.hotspot.x * 100)}% ${Math.round(pic.hotspot.y * 100)}%` : undefined;
+---
+<img
+  class={cls}
+  src={remote ? sized(pic.src, width) : pic.src}
+  srcset={remote ? `${sized(pic.src, width)} 1x, ${sized(pic.src, width * 2)} 2x` : undefined}
+  width={width}
+  height={height}
+  alt={alt ?? pic.alt ?? ''}
+  loading={eager ? 'eager' : 'lazy'}
+  fetchpriority={eager ? 'high' : undefined}
+  decoding="async"
+  style={position}
+>
